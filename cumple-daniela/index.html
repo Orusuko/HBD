@@ -2,8 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#14060d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
   <title>Para Daniela · Galerías VIP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -37,7 +40,13 @@
 
     html, body {
       min-height: 100%;
+      min-height: 100dvh;
       height: 100%;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
 
     body {
@@ -51,6 +60,18 @@
       overflow-x: hidden;
       overflow-y: auto;
       -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      padding:
+        env(safe-area-inset-top, 0)
+        env(safe-area-inset-right, 0)
+        env(safe-area-inset-bottom, 0)
+        env(safe-area-inset-left, 0);
+    }
+
+    body.is-reading {
+      overflow: hidden;
+      overscroll-behavior: none;
     }
 
     body::before {
@@ -75,9 +96,14 @@
       position: relative;
       z-index: 1;
       min-height: 100dvh;
+      min-height: 100svh;
       display: grid;
       place-items: center;
-      padding: clamp(1.25rem, 4vw, 2.5rem);
+      padding:
+        max(1.25rem, env(safe-area-inset-top, 0px))
+        max(1.25rem, env(safe-area-inset-right, 0px))
+        max(1.25rem, env(safe-area-inset-bottom, 0px))
+        max(1.25rem, env(safe-area-inset-left, 0px));
       perspective: 1400px;
     }
 
@@ -205,10 +231,14 @@
       padding: 0;
       width: 100%;
       height: 100%;
+      min-height: 220px;
       cursor: pointer;
       transform-origin: 50% 70%;
       animation: wobble 2.8s ease-in-out infinite;
       filter: drop-shadow(0 28px 40px rgba(0, 0, 0, 0.45));
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     .envelope-btn:focus-visible {
@@ -368,6 +398,7 @@
       padding: clamp(1rem, 3vw, 2rem);
       pointer-events: none;
       opacity: 0;
+      overscroll-behavior: contain;
     }
 
     .letter-layer.is-visible {
@@ -393,6 +424,8 @@
       width: min(100%, 440px);
       max-height: min(92dvh, 820px);
       overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
       background:
         linear-gradient(180deg, #fffaf3 0%, var(--paper) 40%, var(--paper-edge) 100%);
       color: var(--ink);
@@ -408,6 +441,8 @@
         transform 1.05s var(--ease-lux) 0.35s,
         opacity 0.8s var(--ease-soft) 0.35s;
       position: relative;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(201, 160, 106, 0.55) transparent;
     }
 
     .letter::before {
@@ -492,10 +527,12 @@
     }
 
     .message {
-      font-size: clamp(1.05rem, 2.8vw, 1.18rem);
-      line-height: 1.65;
+      font-size: clamp(1.08rem, 2.8vw, 1.2rem);
+      line-height: 1.7;
       color: var(--ink);
       text-wrap: pretty;
+      hyphens: auto;
+      -webkit-hyphens: auto;
     }
 
     .message p {
@@ -617,13 +654,16 @@
 
     .replay {
       position: fixed;
-      bottom: 1.25rem;
+      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
       left: 50%;
       transform: translateX(-50%) translateY(20px);
       z-index: 30;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.45s var(--ease-soft), transform 0.45s var(--ease-soft);
+      width: min(92vw, 360px);
+      display: flex;
+      justify-content: center;
     }
 
     .replay.is-visible {
@@ -635,17 +675,20 @@
     .replay button {
       appearance: none;
       border: 1px solid rgba(226, 192, 141, 0.45);
-      background: rgba(20, 6, 13, 0.65);
+      background: rgba(20, 6, 13, 0.78);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       color: var(--champagne);
       font-family: var(--font-display);
       font-size: 0.68rem;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      padding: 0.75rem 1.15rem;
+      padding: 0.85rem 1.2rem;
       border-radius: 999px;
       cursor: pointer;
-      min-height: 44px;
+      min-height: 48px;
+      min-width: min(100%, 280px);
+      touch-action: manipulation;
       transition: background 0.25s var(--ease-soft), border-color 0.25s, transform 0.25s;
     }
 
@@ -655,28 +698,200 @@
       transform: translateY(-1px);
     }
 
+    .replay button:active {
+      transform: scale(0.98);
+    }
+
     .replay button:focus-visible {
       outline: 2px solid var(--champagne);
       outline-offset: 3px;
     }
 
-    @media (max-width: 480px) {
+    /* Teléfono: scroll de página natural, sin carta “atrapada” */
+    @media (max-width: 640px) {
+      .curtain {
+        width: min(18vw, 72px);
+        opacity: 0.35;
+      }
+
+      .intro {
+        top: max(1rem, env(safe-area-inset-top, 0px));
+        width: min(92vw, 420px);
+        padding-inline: 0.5rem;
+      }
+
+      .intro h1 {
+        font-size: clamp(2.35rem, 11vw, 3.2rem);
+      }
+
+      .hint {
+        font-size: 0.9rem;
+        line-height: 1.35;
+      }
+
+      .eyebrow {
+        letter-spacing: 0.28em;
+        font-size: 0.62rem;
+      }
+
+      .stage {
+        align-content: center;
+        padding-top: max(5.5rem, calc(env(safe-area-inset-top, 0px) + 4.5rem));
+        padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+      }
+
       .scene {
-        height: 240px;
-        margin-top: 4.2rem;
+        width: min(88vw, 340px);
+        height: min(52vw, 230px);
+        margin-top: 0.5rem;
+      }
+
+      .envelope-btn {
+        min-height: 200px;
+        animation-duration: 3.4s;
       }
 
       .seal {
-        width: 64px;
-        height: 64px;
+        width: 68px;
+        height: 68px;
+      }
+
+      .letter-layer {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding:
+          max(0.85rem, env(safe-area-inset-top, 0px))
+          max(0.75rem, env(safe-area-inset-right, 0px))
+          calc(5.75rem + env(safe-area-inset-bottom, 0px))
+          max(0.75rem, env(safe-area-inset-left, 0px));
       }
 
       .letter {
-        padding: 1.2rem 1.1rem 1.4rem;
+        width: 100%;
+        max-width: 440px;
+        max-height: none;
+        overflow: visible;
+        margin: 0 auto;
+        padding: 1.35rem 1.15rem 1.5rem;
+        border-radius: 10px;
+        transform: translateY(36px) scale(0.96);
+      }
+
+      .letter-layer.is-visible .letter {
+        transform: translateY(0) scale(1);
+      }
+
+      .letter::before {
+        inset: 8px;
+      }
+
+      .letter-name {
+        font-size: clamp(2.7rem, 14vw, 3.5rem);
       }
 
       .polaroid {
-        width: 72%;
+        width: min(58%, 200px);
+        margin: 0.7rem auto 1rem;
+        padding: 0.55rem 0.55rem 1.2rem;
+      }
+
+      .polaroid img,
+      .polaroid-fallback {
+        aspect-ratio: 3 / 4;
+      }
+
+      .polaroid figcaption {
+        margin-top: 0.5rem;
+        font-size: 1.2rem;
+      }
+
+      .message {
+        font-size: 1.125rem;
+        line-height: 1.72;
+      }
+
+      .closing {
+        font-size: 1.55rem;
+        margin-top: 1.1rem;
+      }
+
+      .letter-footer {
+        margin-top: 1rem;
+        margin-bottom: 0.25rem;
+        letter-spacing: 0.22em;
+      }
+
+      .replay button {
+        letter-spacing: 0.12em;
+        font-size: 0.64rem;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) and (max-height: 720px) {
+      .polaroid {
+        width: min(48%, 160px);
+      }
+
+      .letter-sub {
+        font-size: 0.95rem;
+      }
+    }
+
+    /* iPhone SE / pantallas muy bajas */
+    @media (max-width: 640px) and (max-height: 680px) {
+      .intro h1 {
+        font-size: 2.2rem;
+      }
+
+      .hint {
+        font-size: 0.82rem;
+      }
+
+      .scene {
+        height: 200px;
+      }
+    }
+
+    /* Horizontal en teléfono */
+    @media (max-height: 430px) and (orientation: landscape) {
+      .curtain { display: none; }
+
+      .intro {
+        position: static;
+        transform: none;
+        margin-bottom: 0.5rem;
+      }
+
+      .intro.is-hidden { display: none; }
+
+      .stage {
+        min-height: 100dvh;
+        padding: 0.75rem;
+        align-content: center;
+      }
+
+      .scene {
+        width: min(42vh, 280px);
+        height: min(32vh, 170px);
+        margin-top: 0;
+      }
+
+      .letter-layer {
+        padding: 0.5rem 0.75rem calc(4.5rem + env(safe-area-inset-bottom, 0px));
+      }
+
+      .polaroid {
+        width: min(34%, 140px);
+        float: right;
+        margin: 0 0 0.75rem 0.85rem;
+      }
+
+      .letter-top {
+        text-align: left;
       }
     }
 
@@ -705,6 +920,10 @@
       .message p {
         opacity: 1;
         transform: none;
+      }
+
+      .letter-layer.is-visible .polaroid {
+        animation: none !important;
       }
     }
   </style>
@@ -802,11 +1021,15 @@
       const replayBtn = document.getElementById("replayBtn");
       const ambiance = document.querySelector(".ambiance");
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const isCoarse =
+        window.matchMedia("(pointer: coarse)").matches ||
+        window.matchMedia("(max-width: 640px)").matches;
 
       let opened = false;
 
       function createDust() {
-        for (let i = 0; i < 28; i++) {
+        const count = isCoarse ? 14 : 28;
+        for (let i = 0; i < count; i++) {
           const d = document.createElement("span");
           d.className = "dust";
           d.style.left = Math.random() * 100 + "%";
@@ -821,11 +1044,12 @@
       function burstSparks() {
         if (reduceMotion) return;
         const colors = ["#e2c08d", "#e8b4c4", "#fff7ef", "#c43b63", "#f0d9a8"];
-        for (let i = 0; i < 36; i++) {
+        const count = isCoarse ? 22 : 36;
+        for (let i = 0; i < count; i++) {
           const s = document.createElement("span");
           s.className = "spark";
-          const angle = (Math.PI * 2 * i) / 36 + Math.random() * 0.4;
-          const dist = 80 + Math.random() * 180;
+          const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+          const dist = 70 + Math.random() * (isCoarse ? 140 : 180);
           s.style.setProperty("--tx", Math.cos(angle) * dist + "px");
           s.style.setProperty("--ty", Math.sin(angle) * dist - 40 + "px");
           s.style.setProperty("--life", 0.9 + Math.random() * 0.8 + "s");
@@ -841,24 +1065,32 @@
         if (opened) return;
         opened = true;
         openBtn.disabled = true;
+        document.body.classList.add("is-reading");
         scene.classList.add("is-open", "is-opening");
         intro.classList.add("is-hidden");
         burstSparks();
 
-        const revealDelay = reduceMotion ? 50 : 700;
+        const revealDelay = reduceMotion ? 50 : isCoarse ? 520 : 700;
         setTimeout(() => {
+          letterLayer.scrollTop = 0;
           letterLayer.classList.add("is-visible");
           letterLayer.setAttribute("aria-hidden", "false");
           scene.classList.add("is-gone");
           replay.classList.add("is-visible");
+          // En móvil, enfoca el inicio de la carta tras la animación
+          requestAnimationFrame(() => {
+            letterLayer.scrollTo({ top: 0, behavior: "auto" });
+          });
         }, revealDelay);
       }
 
       function resetLetter() {
         opened = false;
         openBtn.disabled = false;
+        document.body.classList.remove("is-reading");
         letterLayer.classList.remove("is-visible");
         letterLayer.setAttribute("aria-hidden", "true");
+        letterLayer.scrollTop = 0;
         replay.classList.remove("is-visible");
         scene.classList.remove("is-open", "is-opening", "is-gone");
         intro.classList.remove("is-hidden");
