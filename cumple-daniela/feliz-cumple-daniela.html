@@ -75,6 +75,43 @@
       overscroll-behavior: none;
     }
 
+    /* Estado abierto: flujo simple y compatible con WebViews de WhatsApp */
+    body.is-open .stage {
+      display: none !important;
+    }
+
+    body.is-open .letter-layer {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      position: relative;
+      inset: auto;
+      z-index: 1;
+      min-height: 100dvh;
+      min-height: 100svh;
+      padding:
+        max(1rem, env(safe-area-inset-top, 0px))
+        max(0.85rem, env(safe-area-inset-right, 0px))
+        calc(5.75rem + env(safe-area-inset-bottom, 0px))
+        max(0.85rem, env(safe-area-inset-left, 0px));
+    }
+
+    body.is-open .letter {
+      opacity: 1 !important;
+      transform: none !important;
+      max-height: none !important;
+      overflow: visible !important;
+      width: min(100%, 440px);
+      margin: 0 auto;
+    }
+
+    body.is-open .replay {
+      opacity: 1 !important;
+      transform: translateX(-50%) translateY(0) !important;
+      pointer-events: auto !important;
+    }
+
     body::before {
       content: "";
       position: fixed;
@@ -1070,95 +1107,110 @@
       }
 
       function burstSparks() {
-        if (reduceMotion) return;
-        const colors = ["#e2c08d", "#e8b4c4", "#fff7ef", "#c43b63", "#f0d9a8"];
-        const count = isCoarse ? 22 : 36;
-        sparkles.classList.add("has-sparks");
-        for (let i = 0; i < count; i++) {
-          const s = document.createElement("span");
-          s.className = "spark";
-          const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
-          const dist = 70 + Math.random() * (isCoarse ? 140 : 180);
-          s.style.setProperty("--tx", Math.cos(angle) * dist + "px");
-          s.style.setProperty("--ty", Math.sin(angle) * dist - 40 + "px");
-          s.style.setProperty("--life", 0.9 + Math.random() * 0.8 + "s");
-          s.style.background = colors[i % colors.length];
-          s.style.width = s.style.height = (4 + Math.random() * 6) + "px";
-          sparkles.appendChild(s);
-          requestAnimationFrame(() => s.classList.add("is-burst"));
-          setTimeout(() => s.remove(), 1800);
+        try {
+          if (reduceMotion || !sparkles) return;
+          const colors = ["#e2c08d", "#e8b4c4", "#fff7ef", "#c43b63", "#f0d9a8"];
+          const count = isCoarse ? 18 : 28;
+          sparkles.classList.add("has-sparks");
+          for (let i = 0; i < count; i++) {
+            const s = document.createElement("span");
+            s.className = "spark";
+            const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+            const dist = 70 + Math.random() * (isCoarse ? 140 : 180);
+            s.style.setProperty("--tx", Math.cos(angle) * dist + "px");
+            s.style.setProperty("--ty", Math.sin(angle) * dist - 40 + "px");
+            s.style.setProperty("--life", 0.9 + Math.random() * 0.8 + "s");
+            s.style.background = colors[i % colors.length];
+            s.style.width = s.style.height = (4 + Math.random() * 6) + "px";
+            sparkles.appendChild(s);
+            requestAnimationFrame(function () {
+              s.classList.add("is-burst");
+            });
+            setTimeout(function () {
+              s.remove();
+            }, 1800);
+          }
+          setTimeout(function () {
+            if (sparkles && !sparkles.querySelector(".spark")) {
+              sparkles.classList.remove("has-sparks");
+            }
+          }, 2000);
+        } catch (err) {
+          /* las chispas no deben impedir abrir la carta */
         }
-        setTimeout(() => {
-          if (!sparkles.querySelector(".spark")) sparkles.classList.remove("has-sparks");
-        }, 2000);
+      }
+
+      function showLetterNow() {
+        document.body.classList.add("is-open", "is-reading");
+        letterLayer.classList.add("is-visible");
+        letterLayer.setAttribute("aria-hidden", "false");
+        scene.classList.add("is-gone");
+        replay.classList.add("is-visible");
+        intro.classList.add("is-hidden");
+        window.scrollTo(0, 0);
+        try {
+          letterLayer.scrollTop = 0;
+        } catch (err) {}
       }
 
       function openLetter(event) {
         if (opened) return;
-        if (event) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
         opened = true;
-        openBtn.disabled = true;
-        document.body.classList.add("is-reading");
+
+        if (event && event.cancelable) {
+          try {
+            event.preventDefault();
+          } catch (err) {}
+        }
+
+        // Feedback inmediato del sobre
         scene.classList.add("is-open", "is-opening");
         intro.classList.add("is-hidden");
         burstSparks();
 
-        const revealDelay = reduceMotion ? 50 : isCoarse ? 520 : 700;
-        setTimeout(() => {
-          letterLayer.scrollTop = 0;
-          letterLayer.classList.add("is-visible");
-          letterLayer.setAttribute("aria-hidden", "false");
-          scene.classList.add("is-gone");
-          replay.classList.add("is-visible");
-          requestAnimationFrame(() => {
-            letterLayer.scrollTo({ top: 0, behavior: "auto" });
-          });
-        }, revealDelay);
+        // En móvil/WhatsApp mostramos la carta casi al instante (fixed overlays fallan seguido)
+        const revealDelay = reduceMotion ? 0 : isCoarse ? 280 : 550;
+        setTimeout(showLetterNow, revealDelay);
       }
 
-      function resetLetter() {
+      function resetLetter(event) {
+        if (event && event.cancelable) {
+          try {
+            event.preventDefault();
+          } catch (err) {}
+        }
         opened = false;
-        openBtn.disabled = false;
-        document.body.classList.remove("is-reading");
+        document.body.classList.remove("is-open", "is-reading");
         letterLayer.classList.remove("is-visible");
         letterLayer.setAttribute("aria-hidden", "true");
-        letterLayer.scrollTop = 0;
         replay.classList.remove("is-visible");
         scene.classList.remove("is-open", "is-opening", "is-gone");
         intro.classList.remove("is-hidden");
-        window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+        window.scrollTo(0, 0);
       }
 
-      // click + touchend: algunos WebViews de WhatsApp/Samsung fallan solo con click
-      openBtn.addEventListener("click", openLetter);
-      openBtn.addEventListener(
-        "touchend",
-        (e) => {
-          openLetter(e);
-        },
-        { passive: false }
-      );
-      scene.addEventListener(
-        "touchend",
-        (e) => {
-          if (!opened) openLetter(e);
-        },
-        { passive: false }
-      );
-      replayBtn.addEventListener("click", resetLetter);
-      replayBtn.addEventListener(
-        "touchend",
-        (e) => {
-          e.preventDefault();
-          resetLetter();
-        },
-        { passive: false }
-      );
+      let lastTouchAt = 0;
+      function onActivate(fn) {
+        return function (event) {
+          // Evita doble disparo touchend + click fantasma
+          if (event && event.type === "touchend") {
+            lastTouchAt = Date.now();
+            fn(event);
+            return;
+          }
+          if (event && event.type === "click" && Date.now() - lastTouchAt < 700) {
+            return;
+          }
+          fn(event);
+        };
+      }
 
-      openBtn.addEventListener("keydown", (e) => {
+      openBtn.addEventListener("click", onActivate(openLetter));
+      openBtn.addEventListener("touchend", onActivate(openLetter), { passive: false });
+      replayBtn.addEventListener("click", onActivate(resetLetter));
+      replayBtn.addEventListener("touchend", onActivate(resetLetter), { passive: false });
+
+      openBtn.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           openLetter(e);
@@ -1174,49 +1226,67 @@
         polaroid.classList.remove("is-missing");
       }
 
-      photo.addEventListener("error", () => {
-        const saved = localStorage.getItem(PHOTO_KEY);
+      function safeStorageGet(key) {
+        try {
+          return localStorage.getItem(key);
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function safeStorageSet(key, value) {
+        try {
+          localStorage.setItem(key, value);
+        } catch (err) {}
+      }
+
+      photo.addEventListener("error", function () {
+        const saved = safeStorageGet(PHOTO_KEY);
         if (saved && photo.src !== saved) {
           showPhoto(saved);
           return;
         }
         polaroid.classList.add("is-missing");
       });
-      photo.addEventListener("load", () => polaroid.classList.remove("is-missing"));
+      photo.addEventListener("load", function () {
+        polaroid.classList.remove("is-missing");
+      });
 
-      const savedPhoto = localStorage.getItem(PHOTO_KEY);
+      const savedPhoto = safeStorageGet(PHOTO_KEY);
       if (savedPhoto) showPhoto(savedPhoto);
 
       function acceptImageFile(file) {
         if (!file || !file.type.startsWith("image/")) return;
         const reader = new FileReader();
-        reader.onload = () => {
-          localStorage.setItem(PHOTO_KEY, reader.result);
+        reader.onload = function () {
+          safeStorageSet(PHOTO_KEY, reader.result);
           showPhoto(reader.result);
         };
         reader.readAsDataURL(file);
       }
 
-      ["dragenter", "dragover"].forEach((evt) => {
-        polaroid.addEventListener(evt, (e) => {
+      ["dragenter", "dragover"].forEach(function (evt) {
+        polaroid.addEventListener(evt, function (e) {
           e.preventDefault();
           polaroid.classList.add("is-drop-target");
         });
       });
-      ["dragleave", "drop"].forEach((evt) => {
-        polaroid.addEventListener(evt, (e) => {
+      ["dragleave", "drop"].forEach(function (evt) {
+        polaroid.addEventListener(evt, function (e) {
           e.preventDefault();
           polaroid.classList.remove("is-drop-target");
           if (evt === "drop") acceptImageFile(e.dataTransfer.files[0]);
         });
       });
 
-      polaroid.addEventListener("click", () => {
+      polaroid.addEventListener("click", function () {
         if (!polaroid.classList.contains("is-missing")) return;
         const input = document.createElement("input");
         input.type = "file";
         input.accept = "image/*";
-        input.addEventListener("change", () => acceptImageFile(input.files[0]));
+        input.addEventListener("change", function () {
+          acceptImageFile(input.files[0]);
+        });
         input.click();
       });
 
