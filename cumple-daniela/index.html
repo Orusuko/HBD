@@ -512,9 +512,12 @@
     .polaroid img {
       display: block;
       width: 100%;
-      height: auto;
+      max-width: 100%;
+      height: auto !important;
+      aspect-ratio: auto;
       object-fit: contain;
-      object-position: center;
+      object-position: center center;
+      vertical-align: middle;
       background:
         linear-gradient(145deg, #f2d9e2, #e8c4b0);
     }
@@ -970,8 +973,8 @@
           id="danielaPhoto"
           src="assets/daniela.jpg"
           alt="Daniela, en un momento divertido durante el turno"
-          width="480"
-          height="600"
+          width="1030"
+          height="1169"
           decoding="async"
         />
         <div class="polaroid-fallback" aria-hidden="true">
