@@ -1,36 +1,44 @@
 # Feliz cumpleaños, Daniela
 
-Tarjeta HTML interactiva estilo sobre VIP de cine, pensada primero para **teléfono**.
+Tarjeta HTML interactiva estilo sobre VIP, pensada para **teléfono** y para enviarse por **WhatsApp como un solo archivo**.
 
-## Cómo usarla
+## Flujo recomendado (WhatsApp)
 
-1. Guarda la foto de Daniela como:
+1. Pon la foto en:
 
 ```text
 cumple-daniela/assets/daniela.jpg
 ```
 
-2. Abre `index.html` en el navegador del teléfono (Safari o Chrome).
-3. Toca el sobre para abrir la carta y desplázate con el dedo para leer todo el mensaje.
+2. Genera el HTML autocontenido:
 
-### Alternativa rápida (foto)
+```bash
+cd cumple-daniela
+python3 build-whatsapp.py
+```
 
-Si aún no está el archivo en `assets/`, abre la carta y **toca el polaroid** para elegir la imagen (o arrástrala en escritorio). Queda guardada en ese navegador.
+3. Descarga / toma el archivo generado:
 
-## Compartir por WhatsApp / teléfono
+```text
+cumple-daniela/feliz-cumple-daniela.html
+```
 
-La forma más fiable:
+4. Envíalo por WhatsApp.
 
-1. Sube la carpeta `cumple-daniela/` a un hosting estático (Netlify Drop, GitHub Pages, etc.).
-2. Envía el **enlace** por WhatsApp.
+La foto va **embebida dentro del HTML** (no usa enlace de GitHub). Daniela solo recibe un archivo; no ve tu repositorio. Funciona aunque no tenga internet al abrirlo.
 
-Si envías el archivo HTML suelto, algunos celulares lo abren bien y otros no cargan la foto; por eso conviene el enlace o mandar la carpeta completa (HTML + `assets/daniela.jpg`).
+> ¿Por qué no cargar la foto “desde el repo”?  
+> Eso pondría una URL de GitHub dentro del HTML. En el chat no se vería, pero quedaría en el archivo, necesitaría internet y podría fallar. Embebida es más limpio y seguro para WhatsApp.
 
-## Detalles móviles ya contemplados
+## Desarrollo / vista previa
 
-- Scroll natural de la carta (sin “cajita” difícil de mover con el dedo)
-- Áreas táctiles amplias (sobre y botón)
-- Safe areas de iPhone (notch / barra inferior)
-- Tipografía legible ~18px en el mensaje
-- Menos partículas en móvil para que vaya fluido
-- Vista horizontal razonable en teléfono
+- Edita `index.html`
+- Usa la foto local en `assets/daniela.jpg`
+- Abre `index.html` en el navegador
+
+## Detalles móviles
+
+- Scroll natural en la carta
+- Safe areas de iPhone
+- Targets táctiles amplios
+- Tipografía legible en pantalla chica

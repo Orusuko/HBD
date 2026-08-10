@@ -1,4 +1,8 @@
-assets/daniela.jpg
-assets/*.png
-assets/*.jpeg
-assets/*.webp
+# Ignora basura local; la foto de Daniela SÍ se versiona.
+*
+!.gitignore
+!daniela.jpg
+!daniela.jpeg
+!daniela.png
+!daniela.webp
+!README.md
