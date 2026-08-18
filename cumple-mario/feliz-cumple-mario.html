@@ -832,6 +832,92 @@
       var lastTouchAt = 0;
       var killTimer = null;
       var letterTimer = null;
+      var audioCtx = null;
+      var soundEnabled = true;
+
+      function ensureAudio() {
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          if (!audioCtx) audioCtx = new AC();
+          if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
+          return audioCtx;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function playKillSound() {
+        if (!soundEnabled) return;
+        var ctx = ensureAudio();
+        if (!ctx) return;
+
+        var t0 = ctx.currentTime;
+        var master = ctx.createGain();
+        master.gain.value = 0.85;
+        master.connect(ctx.destination);
+
+        // Impacto / ruido corto (sensación de hit)
+        var noiseLen = Math.floor(ctx.sampleRate * 0.1);
+        var noiseBuf = ctx.createBuffer(1, noiseLen, ctx.sampleRate);
+        var noiseData = noiseBuf.getChannelData(0);
+        for (var i = 0; i < noiseLen; i++) {
+          noiseData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / noiseLen, 2.2);
+        }
+        var noise = ctx.createBufferSource();
+        noise.buffer = noiseBuf;
+        var noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = "bandpass";
+        noiseFilter.frequency.value = 1600;
+        noiseFilter.Q.value = 0.9;
+        var noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.55, t0);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.1);
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(master);
+        noise.start(t0);
+
+        // Golpe grave
+        var thump = ctx.createOscillator();
+        var thumpGain = ctx.createGain();
+        thump.type = "sine";
+        thump.frequency.setValueAtTime(140, t0);
+        thump.frequency.exponentialRampToValueAtTime(48, t0 + 0.16);
+        thumpGain.gain.setValueAtTime(0.4, t0);
+        thumpGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.18);
+        thump.connect(thumpGain);
+        thumpGain.connect(master);
+        thump.start(t0);
+        thump.stop(t0 + 0.2);
+
+        // Confirmación UI (estilo kill banner)
+        function tone(freq, start, dur, type, vol, slide) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, start);
+          if (slide) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(40, freq * slide), start + dur);
+          }
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(vol, start + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+          osc.connect(gain);
+          gain.connect(master);
+          osc.start(start);
+          osc.stop(start + dur + 0.03);
+        }
+
+        tone(920, t0 + 0.02, 0.11, "square", 0.11, 0.75);
+        tone(1380, t0 + 0.06, 0.16, "sawtooth", 0.07, 0.82);
+        tone(620, t0 + 0.1, 0.22, "triangle", 0.12, 0.7);
+
+        // Eco metálico corto
+        tone(2100, t0 + 0.14, 0.2, "sine", 0.045, 0.55);
+      }
 
       function showLetterNow() {
         document.documentElement.classList.add("is-open");
@@ -852,6 +938,10 @@
       }
 
       function playKillThenLetter() {
+        // Desbloquear audio en el mismo gesto del usuario (iOS/WhatsApp)
+        ensureAudio();
+        playKillSound();
+
         if (reduceMotion) {
           showLetterNow();
           return;
