@@ -16,6 +16,8 @@ PHOTO_CANDIDATES = (
     ROOT / "assets" / "mario.jpeg",
     ROOT / "assets" / "mario.png",
     ROOT / "assets" / "mario.webp",
+    *sorted(ROOT.glob("assets/IMG_*.jpg")),
+    *sorted(ROOT.glob("assets/IMG_*.jpeg")),
 )
 OUTPUT = ROOT / "feliz-cumple-mario.html"
 
