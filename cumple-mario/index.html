@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0F1923" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Para Mario · Feliz Cumpleaños</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Russo+One&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1923;
+      --bg-2: #1b232c;
+      --panel: #15202b;
+      --red: #ff4655;
+      --red-deep: #bd3340;
+      --cream: #ece8e1;
+      --muted: #8b978f;
+      --line: rgba(236, 232, 225, 0.14);
+      --ink: #0f1923;
+      --font-display: "Russo One", Impact, sans-serif;
+      --font-ui: "Chakra Petch", system-ui, sans-serif;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --snap: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      min-height: 100dvh;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      height: 100%;
+    }
+
+    body {
+      height: 100%;
+      font-family: var(--font-ui);
+      color: var(--cream);
+      background:
+        radial-gradient(ellipse 70% 45% at 50% 0%, rgba(255, 70, 85, 0.18), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 90% 80%, rgba(27, 35, 44, 0.9), transparent 50%),
+        linear-gradient(160deg, #141c26 0%, var(--bg) 45%, #0a1016 100%);
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Solo bloquea scroll durante la animación de kill, no en la carta */
+    body.is-killing {
+      overflow: hidden;
+      overscroll-behavior: none;
+      height: 100%;
+    }
+
+    html.is-open {
+      height: auto !important;
+      overflow-y: auto !important;
+    }
+
+    body.is-open {
+      height: auto !important;
+      min-height: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: auto;
+      touch-action: pan-y;
+    }
+
+    body.is-open .stage { display: none !important; }
+    body.is-open .kill-overlay { display: none !important; }
+    body.is-open .spike-fx,
+    body.is-killing .spike-fx {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    body.is-open .letter-layer {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      position: relative;
+      inset: auto;
+      z-index: 1;
+      min-height: auto;
+      height: auto;
+      overflow: visible;
+      padding:
+        max(1rem, env(safe-area-inset-top, 0px))
+        max(0.85rem, env(safe-area-inset-right, 0px))
+        calc(6.5rem + env(safe-area-inset-bottom, 0px))
+        max(0.85rem, env(safe-area-inset-left, 0px));
+    }
+
+    body.is-open .letter {
+      opacity: 1 !important;
+      transform: none !important;
+      max-height: none !important;
+      height: auto !important;
+      overflow: visible !important;
+      width: min(100%, 440px);
+      margin: 0 auto;
+    }
+
+    body.is-open .replay {
+      opacity: 1 !important;
+      transform: translateX(-50%) translateY(0) !important;
+      pointer-events: auto !important;
+    }
+
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.22;
+      background-image:
+        linear-gradient(rgba(236, 232, 225, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(236, 232, 225, 0.06) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    }
+
+    /* ===== Spike atmosphere (antes de abrir) ===== */
+    .spike-fx {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      transition: opacity 0.45s var(--ease), visibility 0.45s;
+    }
+
+    .spike-aura {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      width: min(92vw, 520px);
+      height: min(92vw, 520px);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(255, 70, 85, 0.2) 0%, rgba(236, 232, 225, 0.08) 28%, transparent 62%);
+      filter: blur(2px);
+      animation: aura-pulse 2.8s ease-in-out infinite;
+    }
+
+    .spike-aura::after {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: 50%;
+      border: 1px solid rgba(236, 232, 225, 0.18);
+      box-shadow:
+        0 0 30px rgba(255, 70, 85, 0.15),
+        inset 0 0 40px rgba(236, 232, 225, 0.06);
+      animation: ring-breathe 2.2s ease-in-out infinite;
+    }
+
+    @keyframes aura-pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(0.96); opacity: 0.75; }
+      50% { transform: translate(-50%, -50%) scale(1.06); opacity: 1; }
+    }
+
+    @keyframes ring-breathe {
+      0%, 100% { transform: scale(1); opacity: 0.45; }
+      50% { transform: scale(1.08); opacity: 0.9; }
+    }
+
+    .spike-webs {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      width: min(110vw, 680px);
+      height: min(110vw, 680px);
+      transform: translate(-50%, -50%);
+      opacity: 0.55;
+    }
+
+    .spike-webs svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .spike-webs path {
+      fill: none;
+      stroke: rgba(236, 232, 225, 0.55);
+      stroke-width: 1.2;
+      stroke-linecap: square;
+      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35));
+      animation: web-flicker 1.8s ease-in-out infinite;
+    }
+
+    .spike-webs path:nth-child(odd) { animation-duration: 2.3s; }
+    .spike-webs path:nth-child(3n) {
+      stroke: rgba(255, 70, 85, 0.45);
+      animation-duration: 1.4s;
+    }
+
+    @keyframes web-flicker {
+      0%, 100% { opacity: 0.25; }
+      40% { opacity: 0.85; }
+      70% { opacity: 0.4; }
+    }
+
+    .spike-shards {
+      position: absolute;
+      left: 50%;
+      top: 72%;
+      width: min(100vw, 640px);
+      height: 42%;
+      transform: translateX(-50%);
+    }
+
+    .shard {
+      position: absolute;
+      background: #070b10;
+      opacity: 0.72;
+      clip-path: polygon(10% 0, 100% 20%, 80% 100%, 0 70%);
+      box-shadow: 0 0 0 1px rgba(255, 70, 85, 0.08);
+      --rot: 0deg;
+      transform: rotate(var(--rot));
+      animation: shard-hum 2.6s ease-in-out infinite;
+    }
+
+    .shard:nth-child(1) { left: 8%; top: 18%; width: 70px; height: 34px; --rot: -12deg; }
+    .shard:nth-child(2) { left: 22%; top: 40%; width: 96px; height: 42px; --rot: 8deg; animation-delay: 0.3s; }
+    .shard:nth-child(3) { left: 48%; top: 28%; width: 64px; height: 30px; --rot: -4deg; animation-delay: 0.5s; }
+    .shard:nth-child(4) { left: 62%; top: 48%; width: 110px; height: 38px; --rot: 14deg; animation-delay: 0.15s; }
+    .shard:nth-child(5) { left: 78%; top: 22%; width: 72px; height: 28px; --rot: -18deg; animation-delay: 0.7s; }
+    .shard:nth-child(6) { left: 35%; top: 58%; width: 84px; height: 36px; --rot: 2deg; animation-delay: 0.45s; }
+
+    @keyframes shard-hum {
+      0%, 100% { transform: rotate(var(--rot)) translateY(0); opacity: 0.55; }
+      50% { transform: rotate(var(--rot)) translateY(-2px); opacity: 0.85; }
+    }
+
+    .spike-dust {
+      position: absolute;
+      inset: 0;
+    }
+
+    .dust {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(236, 232, 225, 0.9);
+      box-shadow: 0 0 6px rgba(236, 232, 225, 0.65);
+      opacity: 0;
+      animation: dust-float var(--dur, 5s) var(--delay, 0s) ease-in-out infinite;
+    }
+
+    .dust.hot {
+      background: rgba(255, 70, 85, 0.95);
+      box-shadow: 0 0 8px rgba(255, 70, 85, 0.7);
+    }
+
+    @keyframes dust-float {
+      0% { transform: translate3d(0, 18px, 0) scale(0.5); opacity: 0; }
+      15% { opacity: 0.9; }
+      50% { opacity: 0.55; }
+      100% { transform: translate3d(var(--dx, 20px), -110px, 0) scale(1); opacity: 0; }
+    }
+
+    .spike-label {
+      position: absolute;
+      left: 50%;
+      bottom: max(1.1rem, env(safe-area-inset-bottom, 0px));
+      transform: translateX(-50%);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255, 70, 85, 0.7);
+      text-align: center;
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    .stage {
+      position: relative;
+      z-index: 1;
+      min-height: 100dvh;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding:
+        max(1.25rem, env(safe-area-inset-top, 0px))
+        max(1.1rem, env(safe-area-inset-right, 0px))
+        max(1.25rem, env(safe-area-inset-bottom, 0px))
+        max(1.1rem, env(safe-area-inset-left, 0px));
+    }
+
+    .intro {
+      position: absolute;
+      top: max(1.2rem, env(safe-area-inset-top, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(92vw, 420px);
+      text-align: center;
+      pointer-events: none;
+      z-index: 2;
+      transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+    }
+
+    .intro.is-hidden {
+      opacity: 0;
+      transform: translate(-50%, -10px);
+    }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 0.45rem;
+    }
+
+    .intro h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.1rem, 9vw, 3.2rem);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1;
+      color: var(--cream);
+      text-shadow: 0 0 30px rgba(255, 70, 85, 0.25);
+    }
+
+    .hint {
+      margin-top: 0.55rem;
+      font-size: 0.92rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 1; }
+    }
+
+    .scene {
+      position: relative;
+      z-index: 5;
+      width: min(88vw, 360px);
+      height: 250px;
+      margin-top: 4.5rem;
+      transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+    }
+
+    .scene.is-gone {
+      opacity: 0;
+      transform: scale(0.94) translateY(16px);
+      pointer-events: none;
+    }
+
+    .envelope-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      width: 100%;
+      height: 100%;
+      min-height: 220px;
+      cursor: pointer;
+      position: relative;
+      z-index: 6;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: rgba(255, 70, 85, 0.2);
+    }
+
+    .envelope-btn:focus-visible {
+      outline: 2px solid var(--red);
+      outline-offset: 8px;
+    }
+
+    .envelope-motion {
+      display: block;
+      width: 100%;
+      height: 100%;
+      transform-origin: 50% 70%;
+      animation: wobble 3s ease-in-out infinite;
+      filter: drop-shadow(0 24px 36px rgba(0, 0, 0, 0.55));
+      pointer-events: none;
+    }
+
+    @keyframes wobble {
+      0%, 100% { transform: rotate(-1.2deg) translateY(0); }
+      25% { transform: rotate(1.8deg) translateY(-3px); }
+      50% { transform: rotate(-1.6deg) translateY(1px); }
+      75% { transform: rotate(1.1deg) translateY(-2px); }
+    }
+
+    .envelope {
+      display: block;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      pointer-events: none;
+    }
+
+    .pocket, .flap, .seal { display: block; }
+
+    .pocket {
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+      background:
+        linear-gradient(145deg, #2a3540 0%, var(--bg-2) 45%, #121920 100%);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .pocket::before,
+    .pocket::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 58%;
+      height: 100%;
+      z-index: 2;
+    }
+
+    .pocket::before {
+      left: 0;
+      clip-path: polygon(0 38%, 100% 100%, 0 100%);
+      background: linear-gradient(135deg, #303b47, #1a222b);
+    }
+
+    .pocket::after {
+      right: 0;
+      clip-path: polygon(100% 38%, 100% 100%, 0 100%);
+      background: linear-gradient(225deg, #242d37, #151c24);
+    }
+
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 58%;
+      z-index: 4;
+      transform-origin: top center;
+      transition: transform 0.7s var(--snap);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      background: linear-gradient(180deg, #3a4652 0%, #232c36 100%);
+    }
+
+    .scene.is-open .flap {
+      transform: rotateX(188deg);
+      filter: brightness(0.85);
+      z-index: 1;
+    }
+
+    .seal {
+      position: absolute;
+      top: 58%;
+      left: 50%;
+      z-index: 5;
+      width: 78px;
+      height: 78px;
+      transform: translate(-50%, -50%);
+      border-radius: 4px;
+      background:
+        linear-gradient(145deg, var(--red) 0%, var(--red-deep) 100%);
+      box-shadow:
+        0 10px 22px rgba(255, 70, 85, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      display: grid;
+      place-items: center;
+      transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+    }
+
+    .seal span {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      color: var(--cream);
+    }
+
+    .seal::before {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border: 1px solid rgba(236, 232, 225, 0.35);
+      border-radius: 2px;
+    }
+
+    .scene.is-open .seal {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.25);
+      pointer-events: none;
+    }
+
+    .ticket-tag {
+      position: absolute;
+      right: 12px;
+      bottom: 14px;
+      z-index: 3;
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      color: rgba(236, 232, 225, 0.35);
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      text-transform: uppercase;
+    }
+
+    /* ===== VALORANT KILL OVERLAY ===== */
+    .kill-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      visibility: hidden;
+      opacity: 0;
+      background: rgba(8, 12, 16, 0.72);
+    }
+
+    .kill-overlay.is-active {
+      visibility: visible;
+      opacity: 1;
+      animation: kill-fade 1.8s var(--snap) forwards;
+    }
+
+    @keyframes kill-fade {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      75% { opacity: 1; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+
+    .kill-flash {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 45%, rgba(255, 70, 85, 0.45), transparent 55%);
+      opacity: 0;
+    }
+
+    .kill-overlay.is-active .kill-flash {
+      animation: flash 0.45s var(--snap) forwards;
+    }
+
+    @keyframes flash {
+      0% { opacity: 0; }
+      30% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .kill-slash {
+      position: absolute;
+      width: 140%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--red), var(--cream), var(--red), transparent);
+      transform: rotate(-18deg) scaleX(0);
+      transform-origin: center;
+      box-shadow: 0 0 18px rgba(255, 70, 85, 0.8);
+    }
+
+    .kill-overlay.is-active .kill-slash {
+      animation: slash 0.45s 0.05s var(--snap) forwards;
+    }
+
+    @keyframes slash {
+      0% { transform: rotate(-18deg) scaleX(0); opacity: 0; }
+      40% { transform: rotate(-18deg) scaleX(1); opacity: 1; }
+      100% { transform: rotate(-18deg) scaleX(1) translateX(8%); opacity: 0; }
+    }
+
+    .kill-stack {
+      position: relative;
+      width: min(92vw, 520px);
+      text-align: center;
+      transform: translateY(12px) scale(0.92);
+      opacity: 0;
+    }
+
+    .kill-overlay.is-active .kill-stack {
+      animation: stack-in 0.55s 0.12s var(--snap) forwards;
+    }
+
+    @keyframes stack-in {
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .kill-feed {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      margin: 0 auto 0.85rem;
+      width: fit-content;
+      max-width: 100%;
+      padding: 0.45rem 0.7rem;
+      background: linear-gradient(90deg, rgba(255, 70, 85, 0.92), rgba(189, 51, 64, 0.92));
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+      box-shadow: 0 10px 28px rgba(255, 70, 85, 0.35);
+    }
+
+    .kill-feed .skull {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+    }
+
+    .kill-feed .who {
+      font-family: var(--font-display);
+      font-size: clamp(0.85rem, 3.6vw, 1.05rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .kill-feed .sep {
+      opacity: 0.7;
+      font-weight: 700;
+    }
+
+    .ace {
+      font-family: var(--font-display);
+      font-size: clamp(4.2rem, 22vw, 7rem);
+      letter-spacing: 0.12em;
+      line-height: 0.9;
+      color: var(--cream);
+      text-shadow:
+        0 0 0 2px transparent,
+        4px 4px 0 var(--red),
+        0 0 40px rgba(255, 70, 85, 0.45);
+      -webkit-text-stroke: 1px rgba(15, 25, 35, 0.35);
+    }
+
+    .ace-sub {
+      margin-top: 0.35rem;
+      font-size: clamp(0.85rem, 3.4vw, 1.05rem);
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+
+    .ace-line {
+      margin-top: 0.55rem;
+      font-size: 0.82rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ===== LETTER ===== */
+    .letter-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: clamp(1rem, 3vw, 2rem);
+      pointer-events: none;
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    .letter {
+      width: min(100%, 440px);
+      max-height: min(92dvh, 820px);
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      background:
+        linear-gradient(180deg, #f4f1ea 0%, var(--cream) 40%, #ddd7cd 100%);
+      color: var(--ink);
+      border-radius: 4px;
+      padding: clamp(1.25rem, 4vw, 1.85rem);
+      border: 1px solid rgba(15, 25, 35, 0.08);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+      position: relative;
+      opacity: 0;
+      transform: translateY(28px) scale(0.96);
+      transition: transform 0.55s var(--ease), opacity 0.45s ease;
+    }
+
+    .letter::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border: 1px solid rgba(255, 70, 85, 0.28);
+      pointer-events: none;
+    }
+
+    .letter-top { text-align: center; margin-bottom: 0.75rem; position: relative; }
+
+    .letter-kicker {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--red-deep);
+      margin-bottom: 0.25rem;
+    }
+
+    .letter-name {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 12vw, 3.4rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 0.95;
+      color: var(--ink);
+    }
+
+    .letter-sub {
+      margin-top: 0.25rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #4d5752;
+    }
+
+    .polaroid {
+      width: min(90%, 340px);
+      margin: 0.85rem auto 1.05rem;
+      padding: 0.55rem 0.55rem 1.15rem;
+      background: #fff;
+      box-shadow: 0 12px 28px rgba(15, 25, 35, 0.16);
+      transform: rotate(-1.5deg);
+      position: relative;
+      z-index: 1;
+    }
+
+    .polaroid img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto !important;
+      aspect-ratio: auto;
+      object-fit: contain;
+      object-position: center;
+      background: #d7dde2;
+    }
+
+    .polaroid figcaption {
+      margin-top: 0.55rem;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      color: var(--red-deep);
+    }
+
+    .polaroid.is-missing img { display: none; }
+
+    .polaroid-fallback {
+      display: none;
+      min-height: 180px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.35rem;
+      background: linear-gradient(145deg, #d7dde2, #b8c0c8);
+      color: var(--ink);
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      letter-spacing: 0.08em;
+    }
+
+    .polaroid.is-missing .polaroid-fallback { display: flex; }
+
+    .polaroid-fallback small {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      font-weight: 500;
+      opacity: 0.7;
+    }
+
+    .message {
+      font-size: 1.08rem;
+      line-height: 1.65;
+      color: var(--ink);
+      text-wrap: pretty;
+    }
+
+    .message p { margin-bottom: 0.85rem; }
+    .message p:last-child { margin-bottom: 0; }
+
+    .message .lead {
+      font-family: var(--font-display);
+      font-size: 1.15em;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--red-deep);
+    }
+
+    .closing {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+    }
+
+    .letter-footer {
+      margin-top: 1.1rem;
+      text-align: center;
+      font-size: 0.95rem;
+      font-style: italic;
+      letter-spacing: 0.04em;
+      color: rgba(15, 25, 35, 0.65);
+    }
+
+    .replay {
+      position: fixed;
+      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%) translateY(18px);
+      z-index: 30;
+      opacity: 0;
+      pointer-events: none;
+      width: min(92vw, 360px);
+      display: flex;
+      justify-content: center;
+      transition: opacity 0.35s ease, transform 0.35s var(--ease);
+    }
+
+    .replay button {
+      appearance: none;
+      border: 1px solid rgba(255, 70, 85, 0.55);
+      background: rgba(15, 25, 35, 0.88);
+      color: var(--cream);
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 0.85rem 1.1rem;
+      border-radius: 2px;
+      cursor: pointer;
+      min-height: 48px;
+      width: 100%;
+      touch-action: manipulation;
+    }
+
+    .replay button:active { transform: scale(0.98); }
+
+    @media (max-width: 640px) {
+      .scene {
+        height: min(56vw, 230px);
+        margin-top: 5rem;
+      }
+
+      .envelope-btn { min-height: 200px; }
+
+      .letter {
+        padding: 1.2rem 1.05rem 1.35rem;
+      }
+
+      .message { font-size: 1.06rem; line-height: 1.7; }
+
+      .spike-aura {
+        top: 56%;
+        width: min(100vw, 420px);
+        height: min(100vw, 420px);
+      }
+
+      .spike-webs {
+        top: 56%;
+        width: min(120vw, 520px);
+        height: min(120vw, 520px);
+      }
+
+      .shard:nth-child(5),
+      .shard:nth-child(6) { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .envelope-motion, .hint, .kill-overlay, .kill-flash, .kill-slash, .kill-stack,
+      .spike-aura, .spike-aura::after, .spike-webs path, .shard, .dust, .spike-label {
+        animation: none !important;
+      }
+      .envelope-motion { transform: none; }
+      .hint, .spike-label { opacity: 0.85; }
+      .spike-aura { opacity: 0.7; }
+      .spike-webs path { opacity: 0.45; }
+      .kill-overlay.is-active { opacity: 1; }
+      .kill-overlay.is-active .kill-stack { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg" aria-hidden="true"></div>
+
+  <div class="spike-fx" id="spikeFx" aria-hidden="true">
+    <div class="spike-aura"></div>
+    <div class="spike-webs">
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <path d="M100 100 L28 42 L18 70 L100 100 L46 18 L70 12" />
+        <path d="M100 100 L170 36 L188 62 L100 100 L152 16 L128 10" />
+        <path d="M100 100 L22 120 L40 156 L100 100 L12 150 L34 176" />
+        <path d="M100 100 L178 118 L164 158 L100 100 L190 148 L168 178" />
+        <path d="M100 100 L86 18 L112 10 L100 100 L64 28 L48 46" />
+        <path d="M100 100 L122 186 L96 192 L100 100 L148 170 L166 152" />
+        <path d="M100 100 L18 88 L10 108 L100 100 L34 64 L16 52" />
+        <path d="M100 100 L182 92 L192 112 L100 100 L168 68 L186 54" />
+      </svg>
+    </div>
+    <div class="spike-shards">
+      <span class="shard"></span>
+      <span class="shard"></span>
+      <span class="shard"></span>
+      <span class="shard"></span>
+      <span class="shard"></span>
+      <span class="shard"></span>
+    </div>
+    <div class="spike-dust" id="spikeDust"></div>
+    <p class="spike-label">Spike planted // waiting</p>
+  </div>
+
+  <main class="stage">
+    <header class="intro" id="intro">
+      <p class="eyebrow">Priority Drop // Ranked</p>
+      <h1>Para Mario</h1>
+      <p class="hint">Toca el sobre para abrir</p>
+    </header>
+
+    <div class="scene" id="scene">
+      <button
+        class="envelope-btn"
+        id="openBtn"
+        type="button"
+        aria-label="Abrir carta de cumpleaños para Mario"
+      >
+        <span class="envelope-motion">
+          <span class="envelope" aria-hidden="true">
+            <span class="pocket">
+              <span class="ticket-tag">Plant Defused</span>
+            </span>
+            <span class="flap"></span>
+            <span class="seal"><span>ACE</span></span>
+          </span>
+        </span>
+      </button>
+    </div>
+  </main>
+
+  <div class="kill-overlay" id="killOverlay" aria-hidden="true">
+    <div class="kill-flash"></div>
+    <div class="kill-slash"></div>
+    <div class="kill-stack">
+      <div class="kill-feed">
+        <svg class="skull" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#ECE8E1" d="M12 2c-4.4 0-8 3.1-8 7.2 0 2.6 1.4 4.8 3.5 6.1V18c0 .6.4 1 1 1h1v2h2v-2h2v2h2v-2h1c.6 0 1-.4 1-1v-2.7c2.1-1.3 3.5-3.5 3.5-6.1C20 5.1 16.4 2 12 2zm-3.2 8.3a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6zm6.4 0a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6zM9.5 15.2c.7.7 1.6 1.1 2.5 1.1s1.8-.4 2.5-1.1l-1.1-1.1c-.4.4-.9.6-1.4.6s-1-.2-1.4-.6l-1.1 1.1z"/>
+        </svg>
+        <span class="who">Ubani</span>
+        <span class="sep">»</span>
+        <span class="who">Mario</span>
+      </div>
+      <div class="ace">ACE</div>
+      <p class="ace-sub">Feliz cumpleaños</p>
+      <p class="ace-line">+1 best friend // clutch secured</p>
+    </div>
+  </div>
+
+  <section class="letter-layer" id="letterLayer" aria-live="polite" aria-hidden="true">
+    <article class="letter" id="letter">
+      <div class="letter-top">
+        <p class="letter-kicker">Feliz cumpleaños</p>
+        <h2 class="letter-name">Mario</h2>
+        <p class="letter-sub">con todo, de tu mejor amigo</p>
+      </div>
+
+      <figure class="polaroid" id="polaroid">
+        <!-- Fuente: assets/mario.jpg — para WhatsApp: python3 build-whatsapp.py -->
+        <img
+          id="marioPhoto"
+          src="assets/mario.jpg"
+          alt="Mario, sonriendo y levantando el pulgar"
+          width="1400"
+          height="1050"
+          decoding="async"
+        />
+        <div class="polaroid-fallback" aria-hidden="true">
+          M
+          <small>agrega assets/mario.jpg</small>
+        </div>
+        <figcaption>ese thumbs up legendario</figcaption>
+      </figure>
+
+      <div class="message">
+        <p class="lead">¡Feliz cumpleaños, Mario!</p>
+        <p>
+          Quería aprovechar el día para desearte lo mejor y decirte que es un verdadero gusto tenerte como mejor amigo. Sabemos que a veces el ritmo de la vida puede ponerse pesado, pero tu buena vibra, tu humor y esa lealtad de siempre hacen que todo sea mucho más ameno.
+        </p>
+        <p>
+          Ojalá que hoy te toque relajarte, que te consientan muchísimo y que este nuevo año te traiga puras cosas buenas — victorias, rachas limpias y momentos que valgan la pena.
+        </p>
+        <p class="closing">Un abrazo bien fuerte. Disfruta tu día, te lo mereces.</p>
+      </div>
+
+      <p class="letter-footer">atte Ubani</p>
+    </article>
+  </section>
+
+  <div class="replay" id="replay">
+    <button type="button" id="replayBtn">Cerrar y volver a abrir</button>
+  </div>
+
+  <script>
+    (function () {
+      var scene = document.getElementById("scene");
+      var openBtn = document.getElementById("openBtn");
+      var intro = document.getElementById("intro");
+      var letterLayer = document.getElementById("letterLayer");
+      var replay = document.getElementById("replay");
+      var replayBtn = document.getElementById("replayBtn");
+      var killOverlay = document.getElementById("killOverlay");
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var isCoarse =
+        window.matchMedia("(pointer: coarse)").matches ||
+        window.matchMedia("(max-width: 640px)").matches;
+
+      var opened = false;
+      var lastTouchAt = 0;
+      var killTimer = null;
+      var letterTimer = null;
+      var audioCtx = null;
+      var soundEnabled = true;
+
+      function ensureAudio() {
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          if (!audioCtx) audioCtx = new AC();
+          if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
+          return audioCtx;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function playKillSound() {
+        if (!soundEnabled) return;
+        var ctx = ensureAudio();
+        if (!ctx) return;
+
+        var t0 = ctx.currentTime;
+        var master = ctx.createGain();
+        master.gain.value = 0.85;
+        master.connect(ctx.destination);
+
+        // Impacto / ruido corto (sensación de hit)
+        var noiseLen = Math.floor(ctx.sampleRate * 0.1);
+        var noiseBuf = ctx.createBuffer(1, noiseLen, ctx.sampleRate);
+        var noiseData = noiseBuf.getChannelData(0);
+        for (var i = 0; i < noiseLen; i++) {
+          noiseData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / noiseLen, 2.2);
+        }
+        var noise = ctx.createBufferSource();
+        noise.buffer = noiseBuf;
+        var noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = "bandpass";
+        noiseFilter.frequency.value = 1600;
+        noiseFilter.Q.value = 0.9;
+        var noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.55, t0);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.1);
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(master);
+        noise.start(t0);
+
+        // Golpe grave
+        var thump = ctx.createOscillator();
+        var thumpGain = ctx.createGain();
+        thump.type = "sine";
+        thump.frequency.setValueAtTime(140, t0);
+        thump.frequency.exponentialRampToValueAtTime(48, t0 + 0.16);
+        thumpGain.gain.setValueAtTime(0.4, t0);
+        thumpGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.18);
+        thump.connect(thumpGain);
+        thumpGain.connect(master);
+        thump.start(t0);
+        thump.stop(t0 + 0.2);
+
+        // Confirmación UI (estilo kill banner)
+        function tone(freq, start, dur, type, vol, slide) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, start);
+          if (slide) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(40, freq * slide), start + dur);
+          }
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(vol, start + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+          osc.connect(gain);
+          gain.connect(master);
+          osc.start(start);
+          osc.stop(start + dur + 0.03);
+        }
+
+        tone(920, t0 + 0.02, 0.11, "square", 0.11, 0.75);
+        tone(1380, t0 + 0.06, 0.16, "sawtooth", 0.07, 0.82);
+        tone(620, t0 + 0.1, 0.22, "triangle", 0.12, 0.7);
+
+        // Eco metálico corto
+        tone(2100, t0 + 0.14, 0.2, "sine", 0.045, 0.55);
+      }
+
+      function showLetterNow() {
+        document.documentElement.classList.add("is-open");
+        document.body.classList.remove("is-killing");
+        document.body.classList.add("is-open");
+        document.documentElement.style.height = "auto";
+        document.documentElement.style.overflowY = "auto";
+        document.body.style.height = "auto";
+        document.body.style.overflowY = "auto";
+        letterLayer.classList.add("is-visible");
+        letterLayer.setAttribute("aria-hidden", "false");
+        scene.classList.add("is-gone");
+        replay.classList.add("is-visible");
+        intro.classList.add("is-hidden");
+        killOverlay.classList.remove("is-active");
+        killOverlay.setAttribute("aria-hidden", "true");
+        window.scrollTo(0, 0);
+      }
+
+      function playKillThenLetter() {
+        // Desbloquear audio en el mismo gesto del usuario (iOS/WhatsApp)
+        ensureAudio();
+        playKillSound();
+
+        if (reduceMotion) {
+          showLetterNow();
+          return;
+        }
+
+        document.body.classList.add("is-killing");
+        killOverlay.classList.add("is-active");
+        killOverlay.setAttribute("aria-hidden", "false");
+        scene.classList.add("is-open", "is-opening");
+        intro.classList.add("is-hidden");
+
+        var killMs = isCoarse ? 1450 : 1650;
+        killTimer = setTimeout(function () {
+          showLetterNow();
+        }, killMs);
+      }
+
+      function openLetter(event) {
+        if (opened) return;
+        opened = true;
+        if (event && event.cancelable) {
+          try { event.preventDefault(); } catch (e) {}
+        }
+        playKillThenLetter();
+      }
+
+      function resetLetter(event) {
+        if (event && event.cancelable) {
+          try { event.preventDefault(); } catch (e) {}
+        }
+        opened = false;
+        clearTimeout(killTimer);
+        clearTimeout(letterTimer);
+        document.documentElement.classList.remove("is-open");
+        document.body.classList.remove("is-open", "is-killing", "is-reading");
+        document.documentElement.style.height = "";
+        document.documentElement.style.overflowY = "";
+        document.body.style.height = "";
+        document.body.style.overflowY = "";
+        letterLayer.classList.remove("is-visible");
+        letterLayer.setAttribute("aria-hidden", "true");
+        replay.classList.remove("is-visible");
+        scene.classList.remove("is-open", "is-opening", "is-gone");
+        intro.classList.remove("is-hidden");
+        killOverlay.classList.remove("is-active");
+        killOverlay.setAttribute("aria-hidden", "true");
+        window.scrollTo(0, 0);
+      }
+
+      function onActivate(fn) {
+        return function (event) {
+          if (event && event.type === "touchend") {
+            lastTouchAt = Date.now();
+            fn(event);
+            return;
+          }
+          if (event && event.type === "click" && Date.now() - lastTouchAt < 700) return;
+          fn(event);
+        };
+      }
+
+      openBtn.addEventListener("click", onActivate(openLetter));
+      openBtn.addEventListener("touchend", onActivate(openLetter), { passive: false });
+      replayBtn.addEventListener("click", onActivate(resetLetter));
+      replayBtn.addEventListener("touchend", onActivate(resetLetter), { passive: false });
+
+      openBtn.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openLetter(e);
+        }
+      });
+
+      var photo = document.getElementById("marioPhoto");
+      var polaroid = document.getElementById("polaroid");
+      var PHOTO_KEY = "cumple-mario-photo";
+
+      function showPhoto(src) {
+        photo.src = src;
+        polaroid.classList.remove("is-missing");
+      }
+
+      function safeStorageGet(key) {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+      }
+
+      function safeStorageSet(key, value) {
+        try { localStorage.setItem(key, value); } catch (e) {}
+      }
+
+      photo.addEventListener("error", function () {
+        var saved = safeStorageGet(PHOTO_KEY);
+        if (saved && photo.src !== saved) {
+          showPhoto(saved);
+          return;
+        }
+        polaroid.classList.add("is-missing");
+      });
+      photo.addEventListener("load", function () {
+        polaroid.classList.remove("is-missing");
+      });
+
+      var savedPhoto = safeStorageGet(PHOTO_KEY);
+      if (savedPhoto) showPhoto(savedPhoto);
+
+      polaroid.addEventListener("click", function () {
+        if (!polaroid.classList.contains("is-missing")) return;
+        var input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.addEventListener("change", function () {
+          var file = input.files && input.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function () {
+            safeStorageSet(PHOTO_KEY, reader.result);
+            showPhoto(reader.result);
+          };
+          reader.readAsDataURL(file);
+        });
+        input.click();
+      });
+
+      // Partículas estilo Spike (ambiente antes de abrir)
+      (function spawnSpikeDust() {
+        if (reduceMotion) return;
+        var dustRoot = document.getElementById("spikeDust");
+        if (!dustRoot) return;
+        var count = isCoarse ? 28 : 42;
+        for (var i = 0; i < count; i++) {
+          var d = document.createElement("span");
+          d.className = "dust" + (i % 5 === 0 ? " hot" : "");
+          d.style.left = 8 + Math.random() * 84 + "%";
+          d.style.top = 35 + Math.random() * 50 + "%";
+          d.style.setProperty("--dur", 3.5 + Math.random() * 4.5 + "s");
+          d.style.setProperty("--delay", Math.random() * 4 + "s");
+          d.style.setProperty("--dx", (Math.random() * 80 - 40) + "px");
+          var size = 1.5 + Math.random() * 2.8;
+          d.style.width = size + "px";
+          d.style.height = size + "px";
+          dustRoot.appendChild(d);
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>

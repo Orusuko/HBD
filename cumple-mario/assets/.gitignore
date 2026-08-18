@@ -1,0 +1,9 @@
+*
+!.gitignore
+!mario.jpg
+!mario.jpeg
+!mario.png
+!mario.webp
+!IMG_*.jpg
+!IMG_*.jpeg
+!README.md
