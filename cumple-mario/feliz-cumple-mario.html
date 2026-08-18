@@ -83,6 +83,12 @@
 
     body.is-open .stage { display: none !important; }
     body.is-open .kill-overlay { display: none !important; }
+    body.is-open .spike-fx,
+    body.is-killing .spike-fx {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
 
     body.is-open .letter-layer {
       display: block !important;
@@ -129,6 +135,163 @@
         linear-gradient(90deg, rgba(236, 232, 225, 0.06) 1px, transparent 1px);
       background-size: 42px 42px;
       mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    }
+
+    /* ===== Spike atmosphere (antes de abrir) ===== */
+    .spike-fx {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      transition: opacity 0.45s var(--ease), visibility 0.45s;
+    }
+
+    .spike-aura {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      width: min(92vw, 520px);
+      height: min(92vw, 520px);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(255, 70, 85, 0.2) 0%, rgba(236, 232, 225, 0.08) 28%, transparent 62%);
+      filter: blur(2px);
+      animation: aura-pulse 2.8s ease-in-out infinite;
+    }
+
+    .spike-aura::after {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: 50%;
+      border: 1px solid rgba(236, 232, 225, 0.18);
+      box-shadow:
+        0 0 30px rgba(255, 70, 85, 0.15),
+        inset 0 0 40px rgba(236, 232, 225, 0.06);
+      animation: ring-breathe 2.2s ease-in-out infinite;
+    }
+
+    @keyframes aura-pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(0.96); opacity: 0.75; }
+      50% { transform: translate(-50%, -50%) scale(1.06); opacity: 1; }
+    }
+
+    @keyframes ring-breathe {
+      0%, 100% { transform: scale(1); opacity: 0.45; }
+      50% { transform: scale(1.08); opacity: 0.9; }
+    }
+
+    .spike-webs {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      width: min(110vw, 680px);
+      height: min(110vw, 680px);
+      transform: translate(-50%, -50%);
+      opacity: 0.55;
+    }
+
+    .spike-webs svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .spike-webs path {
+      fill: none;
+      stroke: rgba(236, 232, 225, 0.55);
+      stroke-width: 1.2;
+      stroke-linecap: square;
+      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35));
+      animation: web-flicker 1.8s ease-in-out infinite;
+    }
+
+    .spike-webs path:nth-child(odd) { animation-duration: 2.3s; }
+    .spike-webs path:nth-child(3n) {
+      stroke: rgba(255, 70, 85, 0.45);
+      animation-duration: 1.4s;
+    }
+
+    @keyframes web-flicker {
+      0%, 100% { opacity: 0.25; }
+      40% { opacity: 0.85; }
+      70% { opacity: 0.4; }
+    }
+
+    .spike-shards {
+      position: absolute;
+      left: 50%;
+      top: 72%;
+      width: min(100vw, 640px);
+      height: 42%;
+      transform: translateX(-50%);
+    }
+
+    .shard {
+      position: absolute;
+      background: #070b10;
+      opacity: 0.72;
+      clip-path: polygon(10% 0, 100% 20%, 80% 100%, 0 70%);
+      box-shadow: 0 0 0 1px rgba(255, 70, 85, 0.08);
+      --rot: 0deg;
+      transform: rotate(var(--rot));
+      animation: shard-hum 2.6s ease-in-out infinite;
+    }
+
+    .shard:nth-child(1) { left: 8%; top: 18%; width: 70px; height: 34px; --rot: -12deg; }
+    .shard:nth-child(2) { left: 22%; top: 40%; width: 96px; height: 42px; --rot: 8deg; animation-delay: 0.3s; }
+    .shard:nth-child(3) { left: 48%; top: 28%; width: 64px; height: 30px; --rot: -4deg; animation-delay: 0.5s; }
+    .shard:nth-child(4) { left: 62%; top: 48%; width: 110px; height: 38px; --rot: 14deg; animation-delay: 0.15s; }
+    .shard:nth-child(5) { left: 78%; top: 22%; width: 72px; height: 28px; --rot: -18deg; animation-delay: 0.7s; }
+    .shard:nth-child(6) { left: 35%; top: 58%; width: 84px; height: 36px; --rot: 2deg; animation-delay: 0.45s; }
+
+    @keyframes shard-hum {
+      0%, 100% { transform: rotate(var(--rot)) translateY(0); opacity: 0.55; }
+      50% { transform: rotate(var(--rot)) translateY(-2px); opacity: 0.85; }
+    }
+
+    .spike-dust {
+      position: absolute;
+      inset: 0;
+    }
+
+    .dust {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(236, 232, 225, 0.9);
+      box-shadow: 0 0 6px rgba(236, 232, 225, 0.65);
+      opacity: 0;
+      animation: dust-float var(--dur, 5s) var(--delay, 0s) ease-in-out infinite;
+    }
+
+    .dust.hot {
+      background: rgba(255, 70, 85, 0.95);
+      box-shadow: 0 0 8px rgba(255, 70, 85, 0.7);
+    }
+
+    @keyframes dust-float {
+      0% { transform: translate3d(0, 18px, 0) scale(0.5); opacity: 0; }
+      15% { opacity: 0.9; }
+      50% { opacity: 0.55; }
+      100% { transform: translate3d(var(--dx, 20px), -110px, 0) scale(1); opacity: 0; }
+    }
+
+    .spike-label {
+      position: absolute;
+      left: 50%;
+      bottom: max(1.1rem, env(safe-area-inset-bottom, 0px));
+      transform: translateX(-50%);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255, 70, 85, 0.7);
+      text-align: center;
+      animation: pulse 2.2s ease-in-out infinite;
     }
 
     .stage {
@@ -710,14 +873,32 @@
       }
 
       .message { font-size: 1.06rem; line-height: 1.7; }
+
+      .spike-aura {
+        top: 56%;
+        width: min(100vw, 420px);
+        height: min(100vw, 420px);
+      }
+
+      .spike-webs {
+        top: 56%;
+        width: min(120vw, 520px);
+        height: min(120vw, 520px);
+      }
+
+      .shard:nth-child(5),
+      .shard:nth-child(6) { display: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .envelope-motion, .hint, .kill-overlay, .kill-flash, .kill-slash, .kill-stack {
+      .envelope-motion, .hint, .kill-overlay, .kill-flash, .kill-slash, .kill-stack,
+      .spike-aura, .spike-aura::after, .spike-webs path, .shard, .dust, .spike-label {
         animation: none !important;
       }
       .envelope-motion { transform: none; }
-      .hint { opacity: 0.85; }
+      .hint, .spike-label { opacity: 0.85; }
+      .spike-aura { opacity: 0.7; }
+      .spike-webs path { opacity: 0.45; }
       .kill-overlay.is-active { opacity: 1; }
       .kill-overlay.is-active .kill-stack { opacity: 1; transform: none; }
     }
@@ -725,6 +906,32 @@
 </head>
 <body>
   <div class="grid-bg" aria-hidden="true"></div>
+
+  <div class="spike-fx" id="spikeFx" aria-hidden="true">
+    <div class="spike-aura"></div>
+    <div class="spike-webs">
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <path d="M100 100 L28 42 L18 70 L100 100 L46 18 L70 12" />
+        <path d="M100 100 L170 36 L188 62 L100 100 L152 16 L128 10" />
+        <path d="M100 100 L22 120 L40 156 L100 100 L12 150 L34 176" />
+        <path d="M100 100 L178 118 L164 158 L100 100 L190 148 L168 178" />
+        <path d="M100 100 L86 18 L112 10 L100 100 L64 28 L48 46" />
+        <path d="M100 100 L122 186 L96 192 L100 100 L148 170 L166 152" />
+        <path d="M100 100 L18 88 L10 108 L100 100 L34 64 L16 52" />
+        <path d="M100 100 L182 92 L192 112 L100 100 L168 68 L186 54" />
+      </svg>
+    </div>
+    <div class="spike-shards">
+      <span class="shard"></span>
+      <span class="shard"></span>
+      <span class="shard"></span>
+      <span class="shard"></span>
+      <span class="shard"></span>
+      <span class="shard"></span>
+    </div>
+    <div class="spike-dust" id="spikeDust"></div>
+    <p class="spike-label">Spike planted // waiting</p>
+  </div>
 
   <main class="stage">
     <header class="intro" id="intro">
@@ -1064,6 +1271,27 @@
         });
         input.click();
       });
+
+      // Partículas estilo Spike (ambiente antes de abrir)
+      (function spawnSpikeDust() {
+        if (reduceMotion) return;
+        var dustRoot = document.getElementById("spikeDust");
+        if (!dustRoot) return;
+        var count = isCoarse ? 28 : 42;
+        for (var i = 0; i < count; i++) {
+          var d = document.createElement("span");
+          d.className = "dust" + (i % 5 === 0 ? " hot" : "");
+          d.style.left = 8 + Math.random() * 84 + "%";
+          d.style.top = 35 + Math.random() * 50 + "%";
+          d.style.setProperty("--dur", 3.5 + Math.random() * 4.5 + "s");
+          d.style.setProperty("--delay", Math.random() * 4 + "s");
+          d.style.setProperty("--dx", (Math.random() * 80 - 40) + "px");
+          var size = 1.5 + Math.random() * 2.8;
+          d.style.width = size + "px";
+          d.style.height = size + "px";
+          dustRoot.appendChild(d);
+        }
+      })();
     })();
   </script>
 </body>
