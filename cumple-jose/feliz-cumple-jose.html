@@ -445,12 +445,15 @@
       pointer-events: none;
     }
 
-    /* Retrato a la izquierda, mensaje a la derecha. La foto conserva 1078×1440. */
+    /* El retrato flota a la izquierda (1078×1440) y el mensaje sigue debajo. */
     .spread {
-      display: grid;
-      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-      column-gap: 0.85rem;
-      align-items: start;
+      display: flow-root;
+    }
+
+    .plate {
+      float: left;
+      width: min(46%, 280px);
+      margin: 0 0.9rem 0.55rem 0;
     }
 
     .letter-top { text-align: center; margin-bottom: 0.95rem; }
@@ -502,8 +505,6 @@
       transform: rotate(45deg);
     }
 
-    .plate { margin: 0; }
-
     .mount {
       padding: 0;
       background: var(--paper-2);
@@ -548,15 +549,6 @@
       font-size: 0.75rem;
       letter-spacing: 0.04em;
       opacity: 0.75;
-    }
-
-    figcaption {
-      margin-top: 0.4rem;
-      text-align: center;
-      font-family: var(--font-display);
-      font-style: italic;
-      font-size: 0.95rem;
-      color: var(--sage);
     }
 
     .message {
@@ -625,9 +617,12 @@
 
     @media (max-width: 640px) {
       .letter { padding: 1.15rem 0.7rem 1.2rem; }
-      .spread {
-        grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
-        column-gap: 0.65rem;
+      .plate {
+        width: 44%;
+        margin: 0 0.65rem 0.75rem 0;
+      }
+      .message p:nth-child(3) {
+        clear: left;
       }
       .message { font-size: 0.92rem; line-height: 1.45; }
       .message .lead { font-size: 1.16rem; }
@@ -720,7 +715,6 @@
               </div>
             </div>
           </div>
-          <figcaption>José, en casa</figcaption>
         </figure>
 
         <div class="message-col">

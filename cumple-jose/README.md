@@ -2,7 +2,7 @@
 
 Carta HTML para el padrino. El tono es formal y familiar: sobre de lacre, papel crema y un retrato en su proporción real.
 
-La foto mide **1078×1440** y se ve completa, sin recorte. El retrato queda a la izquierda y el mensaje a la derecha.
+La foto mide **1078×1440** y se ve completa, sin recorte. El retrato flota a la izquierda y el mensaje sigue debajo, en el espacio que antes ocupaba el pie de foto.
 
 ## Flujo WhatsApp
 
