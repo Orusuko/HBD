@@ -113,16 +113,47 @@
     }
 
     body.is-open .letter {
-      opacity: 1 !important;
-      transform: none !important;
       max-height: none !important;
       height: auto !important;
       overflow: visible !important;
     }
 
-    body.is-open .replay {
-      opacity: 1 !important;
-      pointer-events: auto !important;
+    @keyframes letter-arrive {
+      from { opacity: 0; transform: translateY(26px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes piece-in {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .letter-layer:not(.is-in) .letter,
+    .letter-layer:not(.is-in) .letter-top,
+    .letter-layer:not(.is-in) .plate,
+    .letter-layer:not(.is-in) .message-col {
+      opacity: 0;
+    }
+
+    .letter-layer.is-in .letter {
+      animation: letter-arrive 0.85s var(--ease) both;
+    }
+
+    .letter-layer.is-in .letter-top {
+      animation: piece-in 0.7s var(--ease) both;
+    }
+
+    .letter-layer.is-in .plate {
+      animation: piece-in 0.75s var(--ease) 0.14s both;
+    }
+
+    .letter-layer.is-in .message-col {
+      animation: piece-in 0.8s var(--ease) 0.28s both;
+    }
+
+    .letter-layer.is-in .replay {
+      animation: piece-in 0.55s ease 0.4s both;
+      pointer-events: auto;
     }
 
     .linen {
@@ -220,7 +251,8 @@
 
     .envelope-motion {
       display: block;
-      animation: envelope-float 4.5s ease-in-out infinite;
+      transform-origin: 50% 70%;
+      animation: envelope-float 3.2s ease-in-out infinite;
     }
 
     .scene.is-opening .envelope-motion { animation: none; }
@@ -231,8 +263,8 @@
     }
 
     @keyframes envelope-float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-7px); }
+      0%, 100% { transform: translateY(0) rotate(-1.15deg); }
+      50% { transform: translateY(-14px) rotate(1.15deg); }
     }
 
     .envelope {
@@ -314,8 +346,16 @@
         0 8px 16px rgba(74, 22, 30, 0.35),
         inset 0 0 0 2px rgba(231, 213, 176, 0.55),
         inset 0 0 0 6px rgba(122, 47, 58, 0.4);
-      transition: opacity 0.35s ease, transform 0.45s var(--ease);
+      transition: opacity 0.45s ease, transform 0.45s var(--ease);
+      animation: seal-pulse 3.2s ease-in-out infinite;
     }
+
+    @keyframes seal-pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -54%) scale(1.045); }
+    }
+
+    .scene.is-opening .seal { animation: none; }
 
     .seal span {
       font-family: var(--font-display);
@@ -560,10 +600,8 @@
       transition: opacity 0.35s ease;
     }
 
-    body.is-open .replay {
-      opacity: 1 !important;
-      transform: none !important;
-      pointer-events: auto !important;
+    .letter-layer.is-in .replay {
+      pointer-events: auto;
     }
 
     .replay button {
@@ -601,7 +639,17 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .envelope-motion, .hint { animation: none !important; }
+      .envelope-motion, .hint, .seal,
+      .letter-layer.is-in .letter,
+      .letter-layer.is-in .letter-top,
+      .letter-layer.is-in .plate,
+      .letter-layer.is-in .message-col,
+      .letter-layer.is-in .replay { animation: none !important; }
+      .letter-layer.is-in .letter,
+      .letter-layer.is-in .letter-top,
+      .letter-layer.is-in .plate,
+      .letter-layer.is-in .message-col,
+      .letter-layer.is-in .replay { opacity: 1 !important; transform: none !important; }
       .hint { opacity: 0.9; }
       .flap, .seal, .unveil, .unveil-card { transition: none !important; }
     }
@@ -679,10 +727,10 @@
           <div class="message">
             <p class="lead">Feliz cumpleaños, padrino.</p>
             <p>
-              Hoy te escribo con el cariño de la casa. Gracias por ser padrino: por el ejemplo sereno, por la mano que no falla y por esa forma de cuidar a la familia sin hacer alarde.
+              Hoy te escribo con el cariño de la casa. Gracias por ser mi padrino: por el ejemplo sereno, por la mano que no falla y por cuidar a la familia sin hacer alarde.
             </p>
             <p>
-              Que este nuevo año te dé salud, paz en los días comunes y la compañía de los tuyos. Que todo lo que has dado vuelva a ti, despacio y en abundancia.
+              Ojalá este año se te haga ligero y bien acompañado. Que no falte la salud, ni la mesa llena, ni las ganas de estar juntos. Te queremos, padrino.
             </p>
             <p class="closing">Un abrazo fuerte. Feliz día.</p>
           </div>
@@ -704,6 +752,10 @@
         position: relative !important;
         opacity: 1 !important;
         padding: 1.15rem 0.85rem 2rem;
+      }
+      .letter, .letter-top, .plate, .message-col, .replay {
+        opacity: 1 !important;
+        transform: none !important;
       }
       body { height: auto; overflow: auto; background: #efe8da; }
     </style>
@@ -780,9 +832,18 @@
         letterLayer.setAttribute("aria-hidden", "false");
         replay.classList.add("is-visible");
         intro.classList.add("is-hidden");
-        unveil.classList.remove("is-active");
-        unveil.setAttribute("aria-hidden", "true");
         window.scrollTo(0, 0);
+        if (reduceMotion) {
+          letterLayer.classList.add("is-in");
+          unveil.classList.remove("is-active");
+          unveil.setAttribute("aria-hidden", "true");
+          return;
+        }
+        requestAnimationFrame(function () {
+          letterLayer.classList.add("is-in");
+          unveil.classList.remove("is-active");
+          unveil.setAttribute("aria-hidden", "true");
+        });
       }
 
       function openLetter(event) {
@@ -830,6 +891,7 @@
         document.body.style.height = "";
         document.body.style.overflowY = "";
         letterLayer.style.display = "";
+        letterLayer.classList.remove("is-in");
         letterLayer.setAttribute("aria-hidden", "true");
         replay.classList.remove("is-visible");
         scene.classList.remove("is-opening", "is-faded");
