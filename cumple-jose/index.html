@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#142e28" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Para José · Feliz cumpleaños</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* Colores tomados del retrato: muro menta, camisa blanca, sombra verde. */
+      --bg: #142e28;
+      --bg-deep: #0d221e;
+      --mint: #d5eee4;
+      --mint-deep: #b7d9cc;
+      --paper: #f6f1e6;
+      --paper-2: #fffaf3;
+      --ink: #1a2c28;
+      --sage: #2f6a5c;
+      --sage-deep: #1b4338;
+      --gold: #b08d57;
+      --gold-soft: #e7d5b0;
+      --wax: #7a2f3a;
+      --muted: #5d6f69;
+      --font-display: "Cormorant Garamond", Palatino, "Palatino Linotype", Georgia, serif;
+      --font-ui: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      /* Tamaño real del archivo: 1078×1440. */
+      --photo-w: 1078;
+      --photo-h: 1440;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      min-height: 100dvh;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      height: 100%;
+    }
+
+    body {
+      height: 100%;
+      font-family: var(--font-ui);
+      color: var(--gold-soft);
+      background:
+        radial-gradient(ellipse 80% 48% at 50% -8%, rgba(213, 238, 228, 0.18), transparent 58%),
+        radial-gradient(ellipse 42% 32% at 100% 100%, rgba(176, 141, 87, 0.14), transparent 52%),
+        linear-gradient(165deg, #1b3d35 0%, var(--bg) 46%, var(--bg-deep) 100%);
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body.is-unveiling {
+      overflow: hidden;
+      overscroll-behavior: none;
+      height: 100%;
+    }
+
+    html.is-open {
+      height: auto !important;
+      overflow-y: auto !important;
+    }
+
+    body.is-open {
+      height: auto !important;
+      min-height: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: auto;
+      touch-action: pan-y;
+      background:
+        radial-gradient(ellipse 70% 40% at 50% 0%, rgba(213, 238, 228, 0.2), transparent 55%),
+        linear-gradient(180deg, #e7f3ee 0%, #f3efe6 28%, #efe8da 100%);
+      color: var(--ink);
+    }
+
+    body.is-open .stage,
+    body.is-open .unveil { display: none !important; }
+
+    body.is-open .letter-layer {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      position: relative;
+      inset: auto;
+      z-index: 1;
+      min-height: auto;
+      height: auto;
+      overflow: visible;
+        padding:
+        max(1.15rem, env(safe-area-inset-top, 0px))
+        max(0.85rem, env(safe-area-inset-right, 0px))
+        max(1.4rem, env(safe-area-inset-bottom, 0px))
+        max(0.85rem, env(safe-area-inset-left, 0px));
+    }
+
+    body.is-open .letter {
+      max-height: none !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
+
+    @keyframes letter-arrive {
+      from { opacity: 0; transform: translateY(26px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes piece-in {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .letter-layer:not(.is-in) .letter,
+    .letter-layer:not(.is-in) .letter-top,
+    .letter-layer:not(.is-in) .plate,
+    .letter-layer:not(.is-in) .message-col {
+      opacity: 0;
+    }
+
+    .letter-layer.is-in .letter {
+      animation: letter-arrive 0.85s var(--ease) both;
+    }
+
+    .letter-layer.is-in .letter-top {
+      animation: piece-in 0.7s var(--ease) both;
+    }
+
+    .letter-layer.is-in .plate {
+      animation: piece-in 0.75s var(--ease) 0.14s both;
+    }
+
+    .letter-layer.is-in .message-col {
+      animation: piece-in 0.8s var(--ease) 0.28s both;
+    }
+
+    .letter-layer.is-in .replay {
+      animation: piece-in 0.55s ease 0.4s both;
+      pointer-events: auto;
+    }
+
+    .linen {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.45;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(255, 250, 243, 0.035) 0 1px, transparent 1px 4px),
+        repeating-linear-gradient(90deg, rgba(255, 250, 243, 0.02) 0 1px, transparent 1px 7px);
+      mask-image: radial-gradient(ellipse at center, #000 20%, transparent 78%);
+    }
+
+    body.is-open .linen { opacity: 0.22; }
+
+    .stage {
+      position: relative;
+      z-index: 1;
+      min-height: 100dvh;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(1.5rem, env(safe-area-inset-top, 0px))
+        1.25rem
+        max(1.5rem, env(safe-area-inset-bottom, 0px));
+      text-align: center;
+    }
+
+    .intro { margin-bottom: 1.75rem; }
+
+    .eyebrow,
+    .letter-kicker,
+    .unveil-kicker {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow { color: var(--gold-soft); margin-bottom: 0.55rem; }
+
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-style: italic;
+      font-size: clamp(2.8rem, 12vw, 4.2rem);
+      line-height: 0.95;
+      color: #f7f3ea;
+      letter-spacing: 0.01em;
+    }
+
+    .hint {
+      margin-top: 0.85rem;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      color: rgba(231, 213, 176, 0.82);
+      animation: hint-breathe 2.8s ease-in-out infinite;
+    }
+
+    .intro.is-hidden {
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 0.4s ease, transform 0.4s var(--ease);
+    }
+
+    @keyframes hint-breathe {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 1; }
+    }
+
+    .scene {
+      width: min(88vw, 340px);
+      perspective: 900px;
+    }
+
+    .envelope-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      padding: 0.75rem;
+      width: 100%;
+      min-height: 230px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .envelope-btn:focus-visible {
+      outline: 2px solid var(--gold-soft);
+      outline-offset: 6px;
+    }
+
+    .envelope-motion {
+      display: block;
+      transform-origin: 50% 70%;
+      animation: envelope-float 3.2s ease-in-out infinite;
+    }
+
+    .scene.is-opening .envelope-motion { animation: none; }
+
+    .scene.is-faded {
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    @keyframes envelope-float {
+      0%, 100% { transform: translateY(0) rotate(-1.15deg); }
+      50% { transform: translateY(-14px) rotate(1.15deg); }
+    }
+
+    .envelope {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 196px;
+      filter: drop-shadow(0 18px 28px rgba(8, 20, 18, 0.35));
+    }
+
+    .pocket {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(213, 238, 228, 0.35), transparent 42%),
+        var(--paper);
+      border-radius: 3px 3px 8px 8px;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(27, 67, 56, 0.16);
+    }
+
+    .pocket .to {
+      position: absolute;
+      left: 1.15rem;
+      right: 5.5rem;
+      top: 62%;
+      text-align: left;
+      color: var(--sage-deep);
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      font-style: italic;
+      line-height: 1;
+    }
+
+    .pocket .to small {
+      display: block;
+      font-family: var(--font-ui);
+      font-style: normal;
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+      color: var(--muted);
+    }
+
+    .flap {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 112px;
+      transform-origin: top center;
+      transition: transform 0.7s var(--ease);
+      z-index: 2;
+      background: linear-gradient(180deg, #e7f4ee 0%, #d5ebe2 100%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      box-shadow: 0 10px 18px rgba(20, 46, 40, 0.08);
+    }
+
+    .scene.is-opening .flap {
+      transform: rotateX(188deg);
+    }
+
+    .seal {
+      position: absolute;
+      z-index: 3;
+      left: 50%;
+      top: 96px;
+      width: 74px;
+      height: 74px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--gold-soft);
+      background:
+        radial-gradient(circle at 32% 28%, #a24a56, var(--wax) 58%, #4e1c24 100%);
+      box-shadow:
+        0 8px 16px rgba(74, 22, 30, 0.35),
+        inset 0 0 0 2px rgba(231, 213, 176, 0.55),
+        inset 0 0 0 6px rgba(122, 47, 58, 0.4);
+      transition: opacity 0.45s ease, transform 0.45s var(--ease);
+      animation: seal-pulse 3.2s ease-in-out infinite;
+    }
+
+    @keyframes seal-pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -54%) scale(1.045); }
+    }
+
+    .scene.is-opening .seal { animation: none; }
+
+    .seal span {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .scene.is-opening .seal {
+      opacity: 0;
+      transform: translate(-50%, -40%) scale(0.7);
+    }
+
+    .unveil {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 1.5rem;
+      background: rgba(13, 34, 30, 0.94);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .unveil.is-active {
+      opacity: 1;
+    }
+
+    .unveil-card {
+      transform: translateY(10px);
+      opacity: 0;
+      transition: opacity 0.45s ease, transform 0.45s var(--ease);
+    }
+
+    .unveil.is-active .unveil-card {
+      opacity: 1;
+      transform: none;
+    }
+
+    .unveil-kicker { color: var(--gold-soft); margin-bottom: 0.4rem; }
+
+    .unveil-name {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-style: italic;
+      font-size: clamp(3.2rem, 14vw, 4.6rem);
+      line-height: 0.9;
+      color: #f7f3ea;
+    }
+
+    .unveil-line {
+      margin-top: 0.7rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      color: rgba(247, 243, 234, 0.88);
+    }
+
+    .letter-layer {
+      display: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .letter {
+      width: min(100%, 720px);
+      margin: 0 auto;
+      padding: 1.35rem 1rem 1.45rem;
+      background:
+        linear-gradient(180deg, rgba(255, 250, 243, 0.65), transparent 18%),
+        var(--paper);
+      color: var(--ink);
+      border-radius: 2px;
+      box-shadow:
+        0 18px 40px rgba(20, 46, 40, 0.12),
+        inset 0 0 0 1px rgba(176, 141, 87, 0.45);
+      position: relative;
+    }
+
+    .letter::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border: 1px solid rgba(47, 106, 92, 0.28);
+      pointer-events: none;
+    }
+
+    /* El retrato flota a la izquierda (1078×1440) y el mensaje sigue debajo. */
+    .spread {
+      display: flow-root;
+    }
+
+    .plate {
+      float: left;
+      width: min(46%, 280px);
+      margin: 0 0.9rem 0.55rem 0;
+    }
+
+    .letter-top { text-align: center; margin-bottom: 0.95rem; }
+
+    .letter-kicker {
+      color: var(--sage);
+      margin-bottom: 0.15rem;
+    }
+
+    .letter-name {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(2.6rem, 11vw, 3.8rem);
+      line-height: 0.88;
+      letter-spacing: 0.01em;
+      color: var(--sage-deep);
+    }
+
+    .letter-sub {
+      margin-top: 0.35rem;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.2rem;
+      color: #3e564e;
+    }
+
+    .rule {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      margin-top: 0.75rem;
+      color: var(--gold);
+    }
+
+    .rule::before,
+    .rule::after {
+      content: "";
+      width: 3.2rem;
+      height: 1px;
+      background: currentColor;
+      opacity: 0.8;
+    }
+
+    .rule span {
+      width: 6px;
+      height: 6px;
+      border: 1px solid currentColor;
+      transform: rotate(45deg);
+    }
+
+    .mount {
+      padding: 0;
+      background: var(--paper-2);
+    }
+
+    .portrait {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1078 / 1440;
+      background: #cfe6db;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(27, 67, 56, 0.16);
+    }
+
+    .portrait img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    .portrait-fallback {
+      display: none;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.35rem;
+      background: linear-gradient(160deg, #d5eee4, #b7d9cc);
+      color: var(--sage-deep);
+      font-family: var(--font-display);
+      font-size: 3rem;
+    }
+
+    .plate.is-missing img { display: none; }
+    .plate.is-missing .portrait-fallback { display: flex; }
+
+    .portrait-fallback small {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      opacity: 0.75;
+    }
+
+    .message {
+      font-size: 0.98rem;
+      line-height: 1.5;
+      color: var(--ink);
+      text-wrap: pretty;
+    }
+
+    .message p { margin-bottom: 0.8rem; }
+    .message p:last-child { margin-bottom: 0; }
+
+    .message .lead {
+      font-family: var(--font-display);
+      font-size: 1.28rem;
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--sage-deep);
+      text-align: left;
+    }
+
+    .closing {
+      margin-top: 0.35rem;
+      font-weight: 600;
+    }
+
+    .letter-footer {
+      margin-top: 0.85rem;
+      text-align: left;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.25rem;
+      color: rgba(26, 44, 40, 0.72);
+    }
+
+    .replay {
+      width: min(100%, 720px);
+      margin: 0.85rem auto 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .letter-layer.is-in .replay {
+      pointer-events: auto;
+    }
+
+    .replay button {
+      appearance: none;
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid rgba(47, 106, 92, 0.45);
+      background: rgba(246, 241, 230, 0.94);
+      color: var(--sage-deep);
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .replay button:active { transform: scale(0.98); }
+
+    @media (max-width: 640px) {
+      .letter { padding: 1.15rem 0.7rem 1.2rem; }
+      .plate {
+        width: 44%;
+        margin: 0 0.65rem 0.75rem 0;
+      }
+      .message p:nth-child(3) {
+        clear: left;
+      }
+      .message { font-size: 0.92rem; line-height: 1.45; }
+      .message .lead { font-size: 1.16rem; }
+    }
+
+    @media (max-width: 380px) {
+      .envelope { height: 180px; }
+      .message { font-size: 0.86rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .envelope-motion, .hint, .seal,
+      .letter-layer.is-in .letter,
+      .letter-layer.is-in .letter-top,
+      .letter-layer.is-in .plate,
+      .letter-layer.is-in .message-col,
+      .letter-layer.is-in .replay { animation: none !important; }
+      .letter-layer.is-in .letter,
+      .letter-layer.is-in .letter-top,
+      .letter-layer.is-in .plate,
+      .letter-layer.is-in .message-col,
+      .letter-layer.is-in .replay { opacity: 1 !important; transform: none !important; }
+      .hint { opacity: 0.9; }
+      .flap, .seal, .unveil, .unveil-card { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="linen" aria-hidden="true"></div>
+
+  <main class="stage">
+    <header class="intro" id="intro">
+      <p class="eyebrow">Carta de familia</p>
+      <h1>Para José</h1>
+      <p class="hint">Toca el sobre para abrirla</p>
+    </header>
+
+    <div class="scene" id="scene">
+      <button
+        class="envelope-btn"
+        id="openBtn"
+        type="button"
+        aria-label="Abrir la carta de cumpleaños para José"
+      >
+        <span class="envelope-motion">
+          <span class="envelope" aria-hidden="true">
+            <span class="pocket">
+              <span class="to"><small>Para</small>José</span>
+            </span>
+            <span class="flap"></span>
+            <span class="seal"><span>J</span></span>
+          </span>
+        </span>
+      </button>
+    </div>
+  </main>
+
+  <div class="unveil" id="unveil" aria-hidden="true">
+    <div class="unveil-card">
+      <p class="unveil-kicker">Con cariño</p>
+      <p class="unveil-name">José</p>
+      <p class="unveil-line">Feliz cumpleaños, padrino</p>
+    </div>
+  </div>
+
+  <section class="letter-layer" id="letterLayer" aria-live="polite" aria-hidden="true">
+    <article class="letter" id="letter">
+      <header class="letter-top">
+        <p class="letter-kicker">Feliz cumpleaños</p>
+        <h2 class="letter-name">José</h2>
+        <p class="letter-sub">para mi padrino</p>
+        <div class="rule" aria-hidden="true"><span></span></div>
+      </header>
+
+      <div class="spread">
+        <figure class="plate" id="plate">
+          <!-- Fuente: assets/jose.jpg — 1078×1440 — para WhatsApp: python3 build-whatsapp.py -->
+          <div class="mount">
+            <div class="portrait">
+              <img
+                id="josePhoto"
+                src="assets/jose.jpg"
+                alt="José, de camisa blanca, sonriendo en una habitación de paredes verdes"
+                width="1078"
+                height="1440"
+                decoding="async"
+              />
+              <div class="portrait-fallback" aria-hidden="true">
+                J
+                <small>agrega assets/jose.jpg</small>
+              </div>
+            </div>
+          </div>
+        </figure>
+
+        <div class="message-col">
+          <div class="message">
+            <p class="lead">Feliz cumpleaños, padrino.</p>
+            <p>
+              Hoy te escribo con el cariño de la casa. Gracias por ser mi padrino: por el ejemplo sereno, por la mano que no falla y por cuidar a la familia sin hacer alarde.
+            </p>
+            <p>
+              Ojalá este año se te haga ligero y bien acompañado. Que no falte la salud, ni la mesa llena, ni las ganas de estar juntos. Te queremos, padrino.
+            </p>
+            <p class="closing">Un abrazo fuerte. Feliz día.</p>
+          </div>
+          <p class="letter-footer">atte Ubani</p>
+        </div>
+      </div>
+    </article>
+
+    <div class="replay" id="replay">
+      <button type="button" id="replayBtn">Cerrar y volver a abrir</button>
+    </div>
+  </section>
+
+  <noscript>
+    <style>
+      .stage, .unveil, .replay { display: none !important; }
+      .letter-layer {
+        display: block !important;
+        position: relative !important;
+        opacity: 1 !important;
+        padding: 1.15rem 0.85rem 2rem;
+      }
+      .letter, .letter-top, .plate, .message-col, .replay {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      body { height: auto; overflow: auto; background: #efe8da; }
+    </style>
+  </noscript>
+
+  <script>
+    (function () {
+      var scene = document.getElementById("scene");
+      var openBtn = document.getElementById("openBtn");
+      var intro = document.getElementById("intro");
+      var letterLayer = document.getElementById("letterLayer");
+      var replay = document.getElementById("replay");
+      var replayBtn = document.getElementById("replayBtn");
+      var unveil = document.getElementById("unveil");
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var isCoarse =
+        window.matchMedia("(pointer: coarse)").matches ||
+        window.matchMedia("(max-width: 640px)").matches;
+
+      var opened = false;
+      var lastTouchAt = 0;
+      var unveilTimer = null;
+      var letterTimer = null;
+      var audioCtx = null;
+
+      function ensureAudio() {
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          if (!audioCtx) audioCtx = new AC();
+          if (audioCtx.state === "suspended") audioCtx.resume();
+          return audioCtx;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function playChime() {
+        var ctx = ensureAudio();
+        if (!ctx) return;
+        var t0 = ctx.currentTime;
+        var master = ctx.createGain();
+        master.gain.value = 0.22;
+        master.connect(ctx.destination);
+
+        function tone(freq, start, dur, vol) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(vol, start + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+          osc.connect(gain);
+          gain.connect(master);
+          osc.start(start);
+          osc.stop(start + dur + 0.02);
+        }
+
+        tone(392, t0, 0.55, 0.2);
+        tone(494, t0 + 0.12, 0.7, 0.14);
+        tone(587, t0 + 0.26, 0.9, 0.1);
+      }
+
+      function showLetterNow() {
+        document.documentElement.classList.add("is-open");
+        document.body.classList.remove("is-unveiling");
+        document.body.classList.add("is-open");
+        document.documentElement.style.height = "auto";
+        document.documentElement.style.overflowY = "auto";
+        document.body.style.height = "auto";
+        document.body.style.overflowY = "auto";
+        letterLayer.style.display = "block";
+        letterLayer.setAttribute("aria-hidden", "false");
+        replay.classList.add("is-visible");
+        intro.classList.add("is-hidden");
+        window.scrollTo(0, 0);
+        if (reduceMotion) {
+          letterLayer.classList.add("is-in");
+          unveil.classList.remove("is-active");
+          unveil.setAttribute("aria-hidden", "true");
+          return;
+        }
+        requestAnimationFrame(function () {
+          letterLayer.classList.add("is-in");
+          unveil.classList.remove("is-active");
+          unveil.setAttribute("aria-hidden", "true");
+        });
+      }
+
+      function openLetter(event) {
+        if (opened) return;
+        opened = true;
+        if (event && event.cancelable) {
+          try { event.preventDefault(); } catch (e) {}
+        }
+
+        ensureAudio();
+        if (!reduceMotion) playChime();
+
+        if (reduceMotion) {
+          showLetterNow();
+          return;
+        }
+
+        document.body.classList.add("is-unveiling");
+        scene.classList.add("is-opening");
+        intro.classList.add("is-hidden");
+
+        var unveilAt = isCoarse ? 620 : 720;
+        var letterAt = isCoarse ? 1500 : 1680;
+
+        unveilTimer = setTimeout(function () {
+          scene.classList.add("is-faded");
+          unveil.classList.add("is-active");
+          unveil.setAttribute("aria-hidden", "false");
+        }, unveilAt);
+
+        letterTimer = setTimeout(showLetterNow, letterAt);
+      }
+
+      function resetLetter(event) {
+        if (event && event.cancelable) {
+          try { event.preventDefault(); } catch (e) {}
+        }
+        opened = false;
+        clearTimeout(unveilTimer);
+        clearTimeout(letterTimer);
+        document.documentElement.classList.remove("is-open");
+        document.body.classList.remove("is-open", "is-unveiling");
+        document.documentElement.style.height = "";
+        document.documentElement.style.overflowY = "";
+        document.body.style.height = "";
+        document.body.style.overflowY = "";
+        letterLayer.style.display = "";
+        letterLayer.classList.remove("is-in");
+        letterLayer.setAttribute("aria-hidden", "true");
+        replay.classList.remove("is-visible");
+        scene.classList.remove("is-opening", "is-faded");
+        intro.classList.remove("is-hidden");
+        unveil.classList.remove("is-active");
+        unveil.setAttribute("aria-hidden", "true");
+        window.scrollTo(0, 0);
+      }
+
+      function onActivate(fn) {
+        return function (event) {
+          if (event && event.type === "touchend") {
+            lastTouchAt = Date.now();
+            fn(event);
+            return;
+          }
+          if (event && event.type === "click" && Date.now() - lastTouchAt < 700) return;
+          fn(event);
+        };
+      }
+
+      openBtn.addEventListener("click", onActivate(openLetter));
+      openBtn.addEventListener("touchend", onActivate(openLetter), { passive: false });
+      replayBtn.addEventListener("click", onActivate(resetLetter));
+      replayBtn.addEventListener("touchend", onActivate(resetLetter), { passive: false });
+
+      openBtn.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openLetter(e);
+        }
+      });
+
+      var photo = document.getElementById("josePhoto");
+      var plate = document.getElementById("plate");
+      var PHOTO_KEY = "cumple-jose-photo";
+
+      function showPhoto(src) {
+        photo.src = src;
+        plate.classList.remove("is-missing");
+      }
+
+      function safeStorageGet(key) {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+      }
+
+      function safeStorageSet(key, value) {
+        try { localStorage.setItem(key, value); } catch (e) {}
+      }
+
+      photo.addEventListener("error", function () {
+        var saved = safeStorageGet(PHOTO_KEY);
+        if (saved && photo.src !== saved) {
+          showPhoto(saved);
+          return;
+        }
+        plate.classList.add("is-missing");
+      });
+
+      photo.addEventListener("load", function () {
+        plate.classList.remove("is-missing");
+      });
+
+      var savedPhoto = safeStorageGet(PHOTO_KEY);
+      if (savedPhoto) showPhoto(savedPhoto);
+
+      plate.addEventListener("click", function () {
+        if (!plate.classList.contains("is-missing")) return;
+        var input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.addEventListener("change", function () {
+          var file = input.files && input.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function () {
+            safeStorageSet(PHOTO_KEY, reader.result);
+            showPhoto(reader.result);
+          };
+          reader.readAsDataURL(file);
+        });
+        input.click();
+      });
+    })();
+  </script>
+</body>
+</html>

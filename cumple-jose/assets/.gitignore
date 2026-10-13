@@ -1,0 +1,8 @@
+# Ignora basura local; la foto de José SÍ se versiona.
+*
+!.gitignore
+!jose.jpg
+!jose.jpeg
+!jose.png
+!jose.webp
+!README.md
